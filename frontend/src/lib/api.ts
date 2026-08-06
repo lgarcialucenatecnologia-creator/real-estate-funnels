@@ -32,9 +32,10 @@ export interface CreateLeadPayload {
   tracking?: Record<string, string>;
 }
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ??
-  "http://localhost:4000/api";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "http://localhost:4000";
+
+const API_URL = `${API_BASE_URL}/api`;
 
 export class ApiError extends Error {
   constructor(
