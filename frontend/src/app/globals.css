@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+@theme {
+  /* Paleta base · Luisfer García */
+  --color-obsidian: #0c0812;
+  --color-nocturne: #1a1125;
+  --color-gold: #d7a72e;
+  --color-gold-light: #f2c85b;
+  --color-ivory: #f4f1eb;
+  --color-graphite: #747078;
+  --color-tech-blue: #0a6680;
+
+  --color-background: var(--color-obsidian);
+  --color-foreground: var(--color-ivory);
+
+  /* Tipografías: Molde → display, Neue Plak → headings, Coolvetica → cuerpo */
+  --font-display: var(--font-display), "Arial Narrow", sans-serif;
+  --font-heading: var(--font-heading), system-ui, sans-serif;
+  --font-body: var(--font-body), system-ui, sans-serif;
+
+  --radius-card: 1.25rem;
+
+  --animate-progress-shine: progress-shine 2.4s ease-in-out infinite;
+  --animate-fade-up: fade-up 0.6s ease-out both;
+  --animate-pulse-glow: pulse-glow 3s ease-in-out infinite;
+  --animate-float-slow: float-slow 7s ease-in-out infinite;
+}
+
+@keyframes progress-shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-10px);
+    opacity: 0.9;
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-obsidian);
+    color: var(--color-ivory);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: var(--color-gold);
+    color: var(--color-obsidian);
+  }
+
+  input::placeholder {
+    color: color-mix(in srgb, var(--color-graphite) 85%, transparent);
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-ivory);
+    -webkit-box-shadow: 0 0 0 1000px var(--color-nocturne) inset;
+    caret-color: var(--color-ivory);
+  }
+
+  /* El conteo animado (RAF) se apaga aparte, en JS — ver use-count-up.ts */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@utility text-gold-gradient {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-gold) 0%,
+    var(--color-gold-light) 45%,
+    var(--color-gold) 100%
+  );
+  background-clip: text;
+  color: transparent;
+}
+
+@utility surface-card {
+  background-color: color-mix(in srgb, var(--color-nocturne) 80%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-gold) 18%, transparent);
+  border-radius: var(--radius-card);
+  backdrop-filter: blur(12px);
+}
