@@ -1,4 +1,4 @@
-import { LuisferPortrait } from "@/components/brand/luisfer-portrait";
+import { LuiferPortrait } from "@/components/brand/luifer-portrait";
 import { LeadForm } from "@/components/funnel/lead-form";
 import { WEBINAR_DATES } from "@/lib/webinar";
 
@@ -43,7 +43,7 @@ export function HeroSection() {
 
       {/* 3) Imagen — solo mobile, al final */}
       <div className="order-3 flex justify-center [animation:fade-up_0.6s_ease-out_250ms_both] lg:hidden">
-        <LuisferPortrait priority size="hero" />
+        <LuiferPortrait priority size="hero" />
       </div>
     </section>
   );

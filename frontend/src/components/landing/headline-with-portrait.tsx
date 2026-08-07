@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-import portrait from "@/assets/images/luisfer-garcia.png";
+import portrait from "@/assets/images/luifer-garcia.png";
 
 /**
  * El PNG trae 97px de 590 transparentes sobre la cabeza. El marco se escala

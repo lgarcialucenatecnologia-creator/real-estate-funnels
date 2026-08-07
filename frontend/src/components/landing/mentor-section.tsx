@@ -1,4 +1,4 @@
-import { LuisferPortrait } from "@/components/brand/luisfer-portrait";
+import { LuiferPortrait } from "@/components/brand/luifer-portrait";
 import { Reveal } from "@/components/ui/reveal";
 import { MENTOR_POINTS, MENTOR_STATS } from "@/lib/webinar";
 
@@ -10,7 +10,7 @@ export function MentorSection() {
     <section className="mt-20 sm:mt-28">
       <div className="grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
         <Reveal as="div" variant="scale" className="order-2 lg:order-1">
-          <LuisferPortrait size="mentor" className="mx-auto lg:mx-0" />
+          <LuiferPortrait size="mentor" className="mx-auto lg:mx-0" />
         </Reveal>
 
         <Reveal as="div" className="order-1 min-w-0 lg:order-2">

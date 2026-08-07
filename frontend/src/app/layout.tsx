@@ -5,13 +5,13 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Método OPORTUNO · Webinar gratuito | Luisfer García",
-    template: "%s · Luisfer García",
+    default: "Método OPORTUNO · Webinar gratuito | Luifer García",
+    template: "%s · Luifer García",
   },
   description:
-    "Gánate mínimo un 15% en la mesa de negociación en los próximos 90 días. Webinar en vivo de 2 días con el Método OPORTUNO de Luisfer García.",
+    "Gánate mínimo un 15% en la mesa de negociación en los próximos 90 días. Webinar en vivo de 2 días con el Método OPORTUNO de Luifer García.",
   openGraph: {
-    title: "Método OPORTUNO · Webinar gratuito | Luisfer García",
+    title: "Método OPORTUNO · Webinar gratuito | Luifer García",
     description:
       "Aprende a analizar, comparar y negociar inmuebles con números fríos antes de entregar el primer peso.",
     type: "website",

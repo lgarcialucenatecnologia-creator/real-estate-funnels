@@ -43,7 +43,7 @@ export function FunnelShell({
 
         <footer className="border-t border-white/5 pt-6 font-body text-xs text-graphite">
           <p>
-            © {new Date().getFullYear()} Luisfer García. Todos los derechos
+            © {new Date().getFullYear()} Luifer García. Todos los derechos
             reservados. Este sitio no está afiliado a Meta Platforms, Inc.
           </p>
         </footer>

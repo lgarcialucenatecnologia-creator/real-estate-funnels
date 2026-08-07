@@ -1,20 +1,20 @@
 import Image from "next/image";
 
-import portrait from "@/assets/images/luisfer-garcia.png";
-import mentorPortrait from "@/assets/images/luisfer-mentor.png";
+import portrait from "@/assets/images/luifer-garcia.png";
+import mentorPortrait from "@/assets/images/luifer-mentor.png";
 
-interface LuisferPortraitProps {
+interface LuiferPortraitProps {
   className?: string;
   priority?: boolean;
   size?: "hero" | "mentor" | "headline";
 }
 
 /** Retrato en PNG transparente (mejor para fotos que un SVG). */
-export function LuisferPortrait({
+export function LuiferPortrait({
   className = "",
   priority = false,
   size = "hero",
-}: LuisferPortraitProps) {
+}: LuiferPortraitProps) {
   if (size === "headline") {
     return (
       <div className={`relative h-full min-h-0 w-full ${className}`}>

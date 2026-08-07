@@ -1,4 +1,4 @@
-# Funnel de captación · Luisfer García
+# Funnel de captación · Luifer García
 
 Embudo de tres pasos para captar leads de un infoproducto de inversión
 inmobiliaria y llevarlos al grupo privado de WhatsApp.

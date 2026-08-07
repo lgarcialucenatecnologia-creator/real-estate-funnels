@@ -1,6 +1,6 @@
 import type { CreateLeadResponse } from "./api";
 
-export const FUNNEL_SESSION_KEY = "luisfer-funnel-session";
+export const FUNNEL_SESSION_KEY = "luifer-funnel-session";
 
 export interface FunnelSession {
   leadId: string;
