@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 import { AppController } from './app.controller';
+import { AuthModule } from './auth/auth.module';
 import { configuration } from './config/configuration';
 import { FunnelModule } from './funnel/funnel.module';
 import { LeadsModule } from './leads/leads.module';
@@ -19,6 +20,7 @@ import { LeadsModule } from './leads/leads.module';
         uri: config.getOrThrow<string>('mongoUri'),
       }),
     }),
+    AuthModule,
     LeadsModule,
     FunnelModule,
   ],

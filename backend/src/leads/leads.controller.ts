@@ -15,7 +15,7 @@ import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
 import type { Request } from 'express';
 
-import { AdminApiKeyGuard } from '../common/guards/admin-api-key.guard';
+import { AdminAuthGuard } from '../common/guards/admin-auth.guard';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { UpdateStageDto } from './dto/update-stage.dto';
 import { LeadsService } from './leads.service';
@@ -39,7 +39,9 @@ export class LeadsController {
     return {
       lead,
       nextStep: {
-        progressPercentage: this.config.get<number>('funnel.progressPercentage'),
+        progressPercentage: this.config.get<number>(
+          'funnel.progressPercentage',
+        ),
         whatsappGroupUrl: this.config.get<string>('funnel.whatsappGroupUrl'),
       },
     };
@@ -51,7 +53,7 @@ export class LeadsController {
   }
 
   @Get()
-  @UseGuards(AdminApiKeyGuard)
+  @UseGuards(AdminAuthGuard)
   findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
     return this.leadsService.findAll(
       page ? parseInt(page, 10) : undefined,
@@ -60,7 +62,7 @@ export class LeadsController {
   }
 
   @Get('stats')
-  @UseGuards(AdminApiKeyGuard)
+  @UseGuards(AdminAuthGuard)
   stats() {
     return this.leadsService.stats();
   }

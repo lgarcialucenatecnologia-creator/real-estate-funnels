@@ -67,3 +67,4 @@ export class Lead {
 export const LeadSchema = SchemaFactory.createForClass(Lead);
 
 LeadSchema.index({ email: 1, phoneE164: 1 }, { unique: true });
+LeadSchema.index({ createdAt: -1 });

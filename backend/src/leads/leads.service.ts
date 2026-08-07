@@ -68,7 +68,8 @@ export class LeadsService {
     }
 
     const timestamps: Partial<Record<keyof Lead, Date>> = {};
-    if (stage === LeadStage.WhatsappJoined) timestamps.whatsappJoinedAt = new Date();
+    if (stage === LeadStage.WhatsappJoined)
+      timestamps.whatsappJoinedAt = new Date();
     if (stage === LeadStage.Registered) timestamps.registeredAt = new Date();
 
     const lead = await this.leadModel.findByIdAndUpdate(

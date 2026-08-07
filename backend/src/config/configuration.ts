@@ -2,7 +2,11 @@ export interface AppConfig {
   port: number;
   mongoUri: string;
   corsOrigins: string[];
-  adminApiKey: string;
+  adminPassword: string;
+  jwt: {
+    secret: string;
+    expiresIn: string;
+  };
   funnel: {
     whatsappGroupUrl: string;
     progressPercentage: number;
@@ -16,7 +20,11 @@ export const configuration = (): AppConfig => ({
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean),
-  adminApiKey: process.env.ADMIN_API_KEY ?? '',
+  adminPassword: process.env.ADMIN_PASSWORD ?? '',
+  jwt: {
+    secret: process.env.JWT_SECRET ?? '',
+    expiresIn: process.env.JWT_EXPIRES_IN ?? '12h',
+  },
   funnel: {
     whatsappGroupUrl: process.env.WHATSAPP_GROUP_URL ?? '',
     progressPercentage: parseInt(process.env.FUNNEL_PROGRESS ?? '79', 10),
