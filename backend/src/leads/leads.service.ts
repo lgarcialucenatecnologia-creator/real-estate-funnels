@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { isValidObjectId, Model } from 'mongoose';
+import { isValidObjectId, Model, QueryFilter } from 'mongoose';
 
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { Lead, LeadDocument, LeadStage } from './schemas/lead.schema';
@@ -8,6 +8,14 @@ import { Lead, LeadDocument, LeadStage } from './schemas/lead.schema';
 export interface LeadRequestContext {
   ipAddress?: string;
   userAgent?: string;
+}
+
+export interface LeadFilters {
+  campaign?: string;
+  /** Fecha calendario "YYYY-MM-DD"; se incluye desde el inicio de ese día. */
+  dateFrom?: string;
+  /** Fecha calendario "YYYY-MM-DD"; se incluye hasta el final de ese día. */
+  dateTo?: string;
 }
 
 export interface PublicLead {
@@ -82,22 +90,88 @@ export class LeadsService {
     return this.toPublicLead(lead);
   }
 
-  async findAll(page = 1, limit = 25) {
+  async findAll(page = 1, limit = 25, filters: LeadFilters = {}) {
     const safePage = Math.max(1, page);
     const safeLimit = Math.min(Math.max(1, limit), 100);
+    const filter = this.buildFilter(filters);
 
     const [items, total] = await Promise.all([
       this.leadModel
-        .find()
+        .find(filter)
         .sort({ createdAt: -1 })
         .skip((safePage - 1) * safeLimit)
         .limit(safeLimit)
         .lean()
         .exec(),
-      this.leadModel.countDocuments(),
+      this.leadModel.countDocuments(filter),
     ]);
 
     return { items, total, page: safePage, limit: safeLimit };
+  }
+
+  /** Trae todos los leads sin paginar, para exportar a CSV/Excel/PDF. */
+  async findAllForExport(filters: LeadFilters = {}) {
+    return this.leadModel
+      .find(this.buildFilter(filters))
+      .sort({ createdAt: -1 })
+      .lean()
+      .exec();
+  }
+
+  /**
+   * Campañas distintas ya vistas en los leads, más recientes primero. La
+   * primera de la lista es "la campaña actual" para el filtro por defecto
+   * del dashboard.
+   */
+  async findCampaigns() {
+    return this.leadModel.aggregate<{
+      campaign: string;
+      count: number;
+      lastSeenAt: Date;
+    }>([
+      {
+        $match: {
+          'tracking.utm_campaign': { $exists: true, $ne: '' },
+        },
+      },
+      {
+        $group: {
+          _id: '$tracking.utm_campaign',
+          count: { $sum: 1 },
+          lastSeenAt: { $max: '$createdAt' },
+        },
+      },
+      { $sort: { lastSeenAt: -1 } },
+      {
+        $project: {
+          _id: 0,
+          campaign: '$_id',
+          count: 1,
+          lastSeenAt: 1,
+        },
+      },
+    ]);
+  }
+
+  private buildFilter(filters: LeadFilters): QueryFilter<Lead> {
+    const filter: QueryFilter<Lead> = {};
+
+    if (filters.campaign) {
+      filter['tracking.utm_campaign'] = filters.campaign;
+    }
+
+    if (filters.dateFrom || filters.dateTo) {
+      const createdAt: { $gte?: Date; $lt?: Date } = {};
+      if (filters.dateFrom) createdAt.$gte = new Date(filters.dateFrom);
+      if (filters.dateTo) {
+        const exclusiveEnd = new Date(filters.dateTo);
+        exclusiveEnd.setDate(exclusiveEnd.getDate() + 1);
+        createdAt.$lt = exclusiveEnd;
+      }
+      filter.createdAt = createdAt;
+    }
+
+    return filter;
   }
 
   async stats() {

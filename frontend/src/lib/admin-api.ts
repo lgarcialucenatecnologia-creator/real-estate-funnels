@@ -1,4 +1,4 @@
-import { request } from "./api";
+import { API_URL, ApiError, request } from "./api";
 import type { LeadStage } from "./api";
 
 /**
@@ -28,13 +28,104 @@ export interface LeadsPage {
   limit: number;
 }
 
+export interface CampaignSummary {
+  campaign: string;
+  count: number;
+  lastSeenAt: string;
+}
+
+export interface LeadFilters {
+  /** `null`/`undefined` = todas las campañas, sin filtrar por campaña. */
+  campaign?: string | null;
+  /** Fecha "YYYY-MM-DD"; vacío = sin límite. */
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+/** Arma el querystring de filtros, omitiendo lo que no venga definido. */
+function filtersToQuery(filters: LeadFilters = {}): string {
+  const params = new URLSearchParams();
+  if (filters.campaign) params.set("campaign", filters.campaign);
+  if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
+  if (filters.dateTo) params.set("dateTo", filters.dateTo);
+  return params.toString();
+}
+
 export const adminLogin = (password: string) =>
   request<{ token: string }>("/auth/login", {
     method: "POST",
     body: JSON.stringify({ password }),
   });
 
-export const fetchLeads = (token: string, page: number, limit: number) =>
-  request<LeadsPage>(`/leads?page=${page}&limit=${limit}`, {
+export const fetchLeads = (
+  token: string,
+  page: number,
+  limit: number,
+  filters: LeadFilters = {},
+) =>
+  request<LeadsPage>(
+    `/leads?page=${page}&limit=${limit}&${filtersToQuery(filters)}`,
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
+
+export const fetchAllLeadsForExport = (
+  token: string,
+  filters: LeadFilters = {},
+) =>
+  request<{ items: AdminLead[] }>(`/leads/export?${filtersToQuery(filters)}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+
+export const fetchCampaigns = (token: string) =>
+  request<{ items: CampaignSummary[] }>("/leads/campaigns", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+/** Total sin filtrar, para comparar contra el total filtrado en pantalla. */
+export const fetchStats = (token: string) =>
+  request<{ total: number; byStage: Record<string, number> }>(
+    "/leads/stats",
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
+
+/**
+ * A diferencia del resto de este archivo, no usa `request()`: la respuesta
+ * es un binario (.xlsx), no JSON, así que necesita su propio manejo.
+ */
+export async function exportLeadsXlsx(
+  token: string,
+  columns: string[],
+  rows: string[][],
+  filename: string,
+): Promise<Blob> {
+  let response: Response;
+
+  try {
+    response = await fetch(`${API_URL}/leads/export/xlsx`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ columns, rows, filename }),
+    });
+  } catch {
+    throw new ApiError(
+      "No pudimos conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.",
+      0,
+    );
+  }
+
+  if (!response.ok) {
+    const body = (await response.json().catch(() => null)) as {
+      message?: string | string[];
+    } | null;
+    const message = Array.isArray(body?.message)
+      ? body.message[0]
+      : (body?.message ?? "No se pudo generar el archivo Excel.");
+
+    throw new ApiError(message, response.status);
+  }
+
+  return response.blob();
+}

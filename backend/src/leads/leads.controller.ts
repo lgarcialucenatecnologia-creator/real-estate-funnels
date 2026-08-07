@@ -9,14 +9,17 @@ import {
   Post,
   Query,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Throttle } from '@nestjs/throttler';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 
+import { buildXlsxBuffer } from '../common/xlsx';
 import { AdminAuthGuard } from '../common/guards/admin-auth.guard';
 import { CreateLeadDto } from './dto/create-lead.dto';
+import { ExportXlsxDto } from './dto/export-xlsx.dto';
 import { UpdateStageDto } from './dto/update-stage.dto';
 import { LeadsService } from './leads.service';
 
@@ -54,16 +57,65 @@ export class LeadsController {
 
   @Get()
   @UseGuards(AdminAuthGuard)
-  findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
+  findAll(
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('campaign') campaign?: string,
+    @Query('dateFrom') dateFrom?: string,
+    @Query('dateTo') dateTo?: string,
+  ) {
     return this.leadsService.findAll(
       page ? parseInt(page, 10) : undefined,
       limit ? parseInt(limit, 10) : undefined,
+      { campaign, dateFrom, dateTo },
     );
+  }
+
+  @Get('export')
+  @UseGuards(AdminAuthGuard)
+  async findAllForExport(
+    @Query('campaign') campaign?: string,
+    @Query('dateFrom') dateFrom?: string,
+    @Query('dateTo') dateTo?: string,
+  ) {
+    const items = await this.leadsService.findAllForExport({
+      campaign,
+      dateFrom,
+      dateTo,
+    });
+    return { items };
+  }
+
+  @Get('campaigns')
+  @UseGuards(AdminAuthGuard)
+  async findCampaigns() {
+    const items = await this.leadsService.findCampaigns();
+    return { items };
   }
 
   @Get('stats')
   @UseGuards(AdminAuthGuard)
   stats() {
     return this.leadsService.stats();
+  }
+
+  /**
+   * Armador de .xlsx genérico: recibe encabezados + filas ya formateadas por
+   * el frontend (misma fuente que usa la tabla en pantalla) y solo construye
+   * el archivo binario. No conoce nada sobre leads ni UTMs.
+   */
+  @Post('export/xlsx')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AdminAuthGuard)
+  async exportXlsx(@Body() dto: ExportXlsxDto, @Res() res: Response) {
+    const buffer = await buildXlsxBuffer(dto.columns, dto.rows);
+    const filename = dto.filename ?? 'leads.xlsx';
+
+    res.set({
+      'Content-Type':
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'Content-Disposition': `attachment; filename="${filename}"`,
+    });
+    res.send(buffer);
   }
 }
