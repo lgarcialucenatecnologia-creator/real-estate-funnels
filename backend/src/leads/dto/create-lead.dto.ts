@@ -1,4 +1,4 @@
-import { Transform, Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import {
   IsEmail,
   IsObject,
@@ -10,6 +10,47 @@ import {
 
 const trim = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim() : value;
+
+/**
+ * Mismas claves que ya limita el frontend (ver TRACKING_KEYS en
+ * src/lib/funnel-session.ts del frontend) — pero el backend no debe confiar
+ * en eso: nada impide que alguien le pegue directo al API con lo que quiera.
+ */
+const TRACKING_KEYS = [
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_content',
+  'utm_term',
+  'fbclid',
+  'gclid',
+  'ttclid',
+] as const;
+
+/** Límite defensivo por valor para no guardar cadenas gigantes en Mongo. */
+const MAX_TRACKING_VALUE_LENGTH = 512;
+
+/** Descarta claves desconocidas y recorta valores muy largos. */
+const sanitizeTracking = ({
+  value,
+}: {
+  value: unknown;
+}): Record<string, string> | undefined => {
+  if (!value || typeof value !== 'object') return undefined;
+
+  const source = value as Record<string, unknown>;
+  const result: Record<string, string> = {};
+
+  for (const key of TRACKING_KEYS) {
+    const raw = source[key];
+    if (typeof raw !== 'string') continue;
+    const trimmed = raw.trim();
+    if (!trimmed) continue;
+    result[key] = trimmed.slice(0, MAX_TRACKING_VALUE_LENGTH);
+  }
+
+  return Object.keys(result).length > 0 ? result : undefined;
+};
 
 export class CreateLeadDto {
   @Transform(trim)
@@ -48,7 +89,7 @@ export class CreateLeadDto {
   phoneNumber: string;
 
   @IsOptional()
+  @Transform(sanitizeTracking)
   @IsObject()
-  @Type(() => Object)
   tracking?: Record<string, string>;
 }
