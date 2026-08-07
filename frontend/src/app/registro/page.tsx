@@ -10,24 +10,6 @@ import { WhatsappIcon } from "@/components/ui/whatsapp-icon";
 import { updateLeadStage } from "@/lib/api";
 import { useFunnelSession } from "@/lib/use-funnel-session";
 
-const NEXT_STEPS = [
-  {
-    title: "Revisa tu WhatsApp",
-    description:
-      "Dentro del grupo encontrarás el enlace de la formación y el horario de la sesión en vivo.",
-  },
-  {
-    title: "Confirma tu correo",
-    description:
-      "Te enviamos una copia del acceso. Revisa también la bandeja de promociones o spam.",
-  },
-  {
-    title: "Prepara tus preguntas",
-    description:
-      "Llega con tu caso concreto: presupuesto, ciudad objetivo y tipo de propiedad.",
-  },
-];
-
 export default function RegistroPage() {
   const router = useRouter();
   const { session, isReady } = useFunnelSession();
@@ -99,29 +81,8 @@ export default function RegistroPage() {
           />
         </dl>
 
-        <h2 className="font-heading mt-10 text-lg font-bold text-ivory">
-          Próximos pasos
-        </h2>
-        <ol className="mt-4 flex flex-col gap-4">
-          {NEXT_STEPS.map((step, index) => (
-            <li key={step.title} className="flex gap-4">
-              <span className="font-display grid size-8 shrink-0 place-items-center rounded-lg border border-gold/30 bg-gold/10 text-sm font-black text-gold italic">
-                {index + 1}
-              </span>
-              <div>
-                <p className="font-heading text-sm font-bold text-ivory">
-                  {step.title}
-                </p>
-                <p className="font-body mt-1 text-sm text-graphite">
-                  {step.description}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ol>
-
         {session.whatsappGroupUrl && (
-          <div className="mt-9">
+          <div className="mt-10">
             <GoldButton
               variant="outline"
               onClick={() =>
