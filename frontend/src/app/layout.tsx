@@ -7,18 +7,33 @@ import "./globals.css";
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
 export const metadata: Metadata = {
+  /*
+    WhatsApp y Facebook necesitan og:image absoluta. Sin metadataBase, Next
+    resuelve la imagen de `opengraph-image.png` contra localhost y el preview
+    del enlace se cae. Va fijo al dominio de producción a propósito: es el único
+    host desde el que se comparte el enlace.
+  */
+  metadataBase: new URL("https://webinar.garciainversiones.com"),
   title: {
     default: "Método OPORTUNO · Webinar gratuito | Luifer García",
     template: "%s · Luifer García",
   },
   description:
-    "Gánate mínimo un 15% en la mesa de negociación en los próximos 90 días. Webinar en vivo de 2 días con el Método OPORTUNO de Luifer García.",
+    "Aprende a invertir en bienes raíces para hacer crecer tu dinero y construir tu propio plan B. Webinar en vivo de 2 días con el Método OPORTUNO de Luifer García.",
   openGraph: {
     title: "Método OPORTUNO · Webinar gratuito | Luifer García",
     description:
       "Aprende a analizar, comparar y negociar inmuebles con números fríos antes de entregar el primer peso.",
     type: "website",
     locale: "es_LA",
+    url: "/",
+    siteName: "Luifer García · Inversión Inmobiliaria",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Método OPORTUNO · Webinar gratuito | Luifer García",
+    description:
+      "Aprende a analizar, comparar y negociar inmuebles con números fríos antes de entregar el primer peso.",
   },
   robots: { index: true, follow: true },
 };
