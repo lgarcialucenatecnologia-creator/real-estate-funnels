@@ -38,11 +38,14 @@ export default function ProcessingPage() {
     if (!session) return;
     setIsJoining(true);
 
+    const eventId = crypto.randomUUID();
+    window.fbq?.("trackCustom", "WhatsAppJoin", {}, { eventID: eventId });
+
     if (session.whatsappGroupUrl) {
       window.open(session.whatsappGroupUrl, "_blank", "noopener,noreferrer");
     }
 
-    await updateLeadStage(session.leadId, "whatsapp_joined").catch(
+    await updateLeadStage(session.leadId, "whatsapp_joined", eventId).catch(
       () => undefined,
     );
     router.push("/registro");

@@ -82,8 +82,8 @@ export const createLead = (payload: CreateLeadPayload) =>
     body: JSON.stringify(payload),
   });
 
-export const updateLeadStage = (id: string, stage: LeadStage) =>
+export const updateLeadStage = (id: string, stage: LeadStage, eventId?: string) =>
   request<Lead>(`/leads/${id}/stage`, {
     method: "PATCH",
-    body: JSON.stringify({ stage }),
+    body: JSON.stringify({ stage, ...(eventId ? { eventId } : {}) }),
   });

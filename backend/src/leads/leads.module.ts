@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 
 import { LeadsController } from './leads.controller';
 import { LeadsService } from './leads.service';
+import { MetaConversionsService } from './meta-conversions.service';
 import { Lead, LeadSchema } from './schemas/lead.schema';
 
 @Module({
@@ -10,7 +11,7 @@ import { Lead, LeadSchema } from './schemas/lead.schema';
     MongooseModule.forFeature([{ name: Lead.name, schema: LeadSchema }]),
   ],
   controllers: [LeadsController],
-  providers: [LeadsService],
+  providers: [LeadsService, MetaConversionsService],
   exports: [LeadsService],
 })
 export class LeadsModule {}

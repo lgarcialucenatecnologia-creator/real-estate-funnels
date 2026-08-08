@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model, QueryFilter } from 'mongoose';
 
 import { CreateLeadDto } from './dto/create-lead.dto';
+import { MetaConversionsService } from './meta-conversions.service';
 import { Lead, LeadDocument, LeadStage } from './schemas/lead.schema';
 
 export interface LeadRequestContext {
@@ -34,6 +35,7 @@ export class LeadsService {
 
   constructor(
     @InjectModel(Lead.name) private readonly leadModel: Model<LeadDocument>,
+    private readonly metaConversions: MetaConversionsService,
   ) {}
 
   async create(
@@ -70,7 +72,12 @@ export class LeadsService {
     return this.toPublicLead(lead);
   }
 
-  async updateStage(id: string, stage: LeadStage): Promise<PublicLead> {
+  async updateStage(
+    id: string,
+    stage: LeadStage,
+    eventId?: string,
+    context: LeadRequestContext = {},
+  ): Promise<PublicLead> {
     if (!isValidObjectId(id)) {
       throw new NotFoundException('Lead no encontrado');
     }
@@ -87,6 +94,21 @@ export class LeadsService {
     );
 
     if (!lead) throw new NotFoundException('Lead no encontrado');
+
+    if (stage === LeadStage.WhatsappJoined) {
+      // No se espera ni se propaga el error: el pixel/CAPI nunca debe romper
+      // el flujo real del lead uniéndose al grupo.
+      void this.metaConversions.sendEvent({
+        eventName: 'WhatsAppJoin',
+        eventId: eventId ?? lead._id.toString(),
+        email: lead.email,
+        phoneE164: lead.phoneE164,
+        fbclid: lead.tracking?.fbclid,
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
+      });
+    }
+
     return this.toPublicLead(lead);
   }
 

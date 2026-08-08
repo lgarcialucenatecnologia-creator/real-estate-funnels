@@ -51,8 +51,15 @@ export class LeadsController {
   }
 
   @Patch(':id/stage')
-  updateStage(@Param('id') id: string, @Body() dto: UpdateStageDto) {
-    return this.leadsService.updateStage(id, dto.stage);
+  updateStage(
+    @Param('id') id: string,
+    @Body() dto: UpdateStageDto,
+    @Req() request: Request,
+  ) {
+    return this.leadsService.updateStage(id, dto.stage, dto.eventId, {
+      ipAddress: request.ip,
+      userAgent: request.header('user-agent'),
+    });
   }
 
   @Get()

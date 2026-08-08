@@ -11,6 +11,10 @@ export interface AppConfig {
     whatsappGroupUrl: string;
     progressPercentage: number;
   };
+  meta: {
+    pixelId: string;
+    capiAccessToken: string;
+  };
 }
 
 export const configuration = (): AppConfig => ({
@@ -28,5 +32,9 @@ export const configuration = (): AppConfig => ({
   funnel: {
     whatsappGroupUrl: process.env.WHATSAPP_GROUP_URL ?? '',
     progressPercentage: parseInt(process.env.FUNNEL_PROGRESS ?? '79', 10),
+  },
+  meta: {
+    pixelId: process.env.META_PIXEL_ID ?? '',
+    capiAccessToken: process.env.META_CAPI_ACCESS_TOKEN ?? '',
   },
 });
