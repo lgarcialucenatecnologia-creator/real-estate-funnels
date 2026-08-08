@@ -391,14 +391,26 @@ export default function AdminDashboardPage() {
                     <td className="px-4 py-3 font-body text-sm whitespace-nowrap text-ivory/80">
                       {countryName(lead.countryCode)}
                     </td>
-                    {UTM_KEYS.map((key) => (
-                      <td
-                        key={key}
-                        className="px-4 py-3 font-body text-sm whitespace-nowrap text-ivory/70"
-                      >
-                        {lead.tracking?.[key] ?? "—"}
-                      </td>
-                    ))}
+                    {UTM_KEYS.map((key) => {
+                      const value = lead.tracking?.[key];
+
+                      return (
+                        <td
+                          key={key}
+                          className="px-4 py-3 font-body text-sm text-ivory/70"
+                        >
+                          {/* Los UTM de Meta traen valores muy largos (ids de
+                              anuncio, nombres de creativo). Sin recorte empujan
+                              utm_content y utm_term fuera de la pantalla. */}
+                          <span
+                            title={value}
+                            className="block max-w-[18ch] truncate"
+                          >
+                            {value ?? "—"}
+                          </span>
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))
               )}
