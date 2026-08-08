@@ -69,9 +69,10 @@ export function HeadlineWithPortrait() {
         ref={headingRef}
         className="font-display min-w-0 flex-1 text-3xl leading-[0.95] font-black text-balance break-words text-ivory italic uppercase lg:text-pretty [font-stretch:condensed] min-[400px]:text-4xl sm:text-5xl lg:text-[2.7rem] lg:leading-[0.94] xl:text-[3.1rem]"
       >
-        Gánate mínimo un <span className="text-gold-gradient">15%</span> en la
-        mesa de negociación en los próximos{" "}
-        <span className="text-gold-gradient">90 días</span>.
+        Aprende a invertir en{" "}
+        <span className="text-gold-gradient">bienes raíces</span> para hacer
+        crecer tu dinero y construir tu propio{" "}
+        <span className="text-gold-gradient">plan B</span>.
       </h1>
     </div>
   );
