@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 
+import { PixelPageView } from "@/components/analytics/pixel-page-view";
 import { fontVariables } from "@/lib/fonts";
 import "./globals.css";
 
@@ -78,6 +79,7 @@ export default function RootLayout({
                 alt=""
               />
             </noscript>
+            <PixelPageView />
           </>
         ) : null}
         {children}

@@ -56,10 +56,15 @@ export class LeadsController {
     @Body() dto: UpdateStageDto,
     @Req() request: Request,
   ) {
-    return this.leadsService.updateStage(id, dto.stage, dto.eventId, {
-      ipAddress: request.ip,
-      userAgent: request.header('user-agent'),
-    });
+    return this.leadsService.updateStage(
+      id,
+      dto.stage,
+      { eventId: dto.eventId, eventSourceUrl: dto.eventSourceUrl },
+      {
+        ipAddress: request.ip,
+        userAgent: request.header('user-agent'),
+      },
+    );
   }
 
   @Get()

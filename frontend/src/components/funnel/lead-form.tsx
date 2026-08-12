@@ -16,6 +16,7 @@ import {
   toFunnelSession,
 } from "@/lib/funnel-session";
 import { leadSchema, type LeadFormValues } from "@/lib/lead-schema";
+import { readMetaCookies } from "@/lib/pixel";
 
 interface LeadFormProps {
   id?: string;
@@ -57,7 +58,12 @@ export function LeadForm({ id }: LeadFormProps) {
         countryCode: country.code,
         dialCode: country.dialCode,
         phoneNumber: values.phoneNumber.replace(/\D/g, ""),
-        tracking: readTrackingParams(),
+        /*
+          Las cookies del pixel se guardan aquí, con el lead: los eventos de
+          Conversions API se disparan más tarde desde el backend, que ya no
+          tiene forma de leerlas.
+        */
+        tracking: { ...readTrackingParams(), ...readMetaCookies() },
       });
 
       saveFunnelSession(toFunnelSession(response));

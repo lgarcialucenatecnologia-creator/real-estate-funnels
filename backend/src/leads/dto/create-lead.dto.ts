@@ -12,9 +12,10 @@ const trim = ({ value }: { value: unknown }) =>
   typeof value === 'string' ? value.trim() : value;
 
 /**
- * Mismas claves que ya limita el frontend (ver TRACKING_KEYS en
- * src/lib/funnel-session.ts del frontend) — pero el backend no debe confiar
- * en eso: nada impide que alguien le pegue directo al API con lo que quiera.
+ * Mismas claves que ya limita el frontend (TRACKING_KEYS en
+ * src/lib/funnel-session.ts, más las cookies de src/lib/pixel.ts) — pero el
+ * backend no debe confiar en eso: nada impide que alguien le pegue directo al
+ * API con lo que quiera.
  */
 const TRACKING_KEYS = [
   'utm_source',
@@ -25,6 +26,10 @@ const TRACKING_KEYS = [
   'fbclid',
   'gclid',
   'ttclid',
+  // Cookies del pixel de Meta (`_fbp` y `_fbc`), que el navegador copia aquí
+  // para que la Conversions API pueda emparejar los eventos server-side.
+  'fbp',
+  'fbc',
 ] as const;
 
 /** Límite defensivo por valor para no guardar cadenas gigantes en Mongo. */

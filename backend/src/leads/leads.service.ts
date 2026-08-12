@@ -11,6 +11,25 @@ export interface LeadRequestContext {
   userAgent?: string;
 }
 
+/**
+ * Qué evento estándar de Meta corresponde a cada etapa. Tienen que ser
+ * estándar (no `trackCustom`) para que el trafficker pueda optimizar la
+ * campaña por ellos sin crear conversiones personalizadas:
+ * `Lead` es "Cliente potencial" y `CompleteRegistration` "Registro completado".
+ */
+const STAGE_EVENTS: Partial<Record<LeadStage, string>> = {
+  [LeadStage.WhatsappJoined]: 'Lead',
+  [LeadStage.Registered]: 'CompleteRegistration',
+};
+
+const EVENT_CONTENT_NAME = 'Webinar Método OPORTUNO';
+
+export interface StageEventInput {
+  /** Mismo ID que el evento del pixel del navegador, para que Meta deduplique. */
+  eventId?: string;
+  eventSourceUrl?: string;
+}
+
 export interface LeadFilters {
   campaign?: string;
   /** Fecha calendario "YYYY-MM-DD"; se incluye desde el inicio de ese día. */
@@ -75,7 +94,7 @@ export class LeadsService {
   async updateStage(
     id: string,
     stage: LeadStage,
-    eventId?: string,
+    event: StageEventInput = {},
     context: LeadRequestContext = {},
   ): Promise<PublicLead> {
     if (!isValidObjectId(id)) {
@@ -95,17 +114,30 @@ export class LeadsService {
 
     if (!lead) throw new NotFoundException('Lead no encontrado');
 
-    if (stage === LeadStage.WhatsappJoined) {
+    const eventName = STAGE_EVENTS[stage];
+    if (eventName) {
       // No se espera ni se propaga el error: el pixel/CAPI nunca debe romper
       // el flujo real del lead uniéndose al grupo.
       void this.metaConversions.sendEvent({
-        eventName: 'WhatsAppJoin',
-        eventId: eventId ?? lead._id.toString(),
+        eventName,
+        /*
+          Sin eventId del navegador se cae al id del lead, pero mezclado con el
+          nombre del evento: si no, `Lead` y `CompleteRegistration` del mismo
+          lead compartirían ID y Meta descartaría uno como duplicado.
+        */
+        eventId: event.eventId ?? `${lead._id.toString()}-${eventName}`,
         email: lead.email,
         phoneE164: lead.phoneE164,
+        firstName: lead.firstName,
+        lastName: lead.lastName,
+        countryCode: lead.countryCode,
+        fbp: lead.tracking?.fbp,
+        fbc: lead.tracking?.fbc,
         fbclid: lead.tracking?.fbclid,
         ipAddress: context.ipAddress,
         userAgent: context.userAgent,
+        eventSourceUrl: event.eventSourceUrl,
+        customData: { content_name: EVENT_CONTENT_NAME },
       });
     }
 

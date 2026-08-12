@@ -8,6 +8,12 @@ import { FunnelShell } from "@/components/layout/funnel-shell";
 import { GoldButton } from "@/components/ui/gold-button";
 import { WhatsappIcon } from "@/components/ui/whatsapp-icon";
 import { updateLeadStage } from "@/lib/api";
+import {
+  EVENT_CONTENT_NAME,
+  newEventId,
+  trackCustomEvent,
+  trackEvent,
+} from "@/lib/pixel";
 import { useFunnelSession } from "@/lib/use-funnel-session";
 
 const CHECKLIST = [
@@ -38,16 +44,28 @@ export default function ProcessingPage() {
     if (!session) return;
     setIsJoining(true);
 
-    const eventId = crypto.randomUUID();
-    window.fbq?.("trackCustom", "WhatsAppJoin", {}, { eventID: eventId });
+    /*
+      `Lead` ("Cliente potencial" en Events Manager) es el evento por el que el
+      trafficker optimiza la campaña: tiene que ser el estándar, no un custom.
+      `WhatsAppJoin` se queda además para ver el paso exacto del funnel.
 
+      El backend repite `Lead` por la Conversions API con este mismo eventId
+      para que Meta cuente uno solo, no dos.
+    */
+    const leadEventId = newEventId();
+    trackEvent("Lead", { content_name: EVENT_CONTENT_NAME }, leadEventId);
+    trackCustomEvent("WhatsAppJoin", {}, newEventId());
+
+    // Va antes del await a propósito: después el navegador ya no lo trata como
+    // gesto del usuario y bloquea la pestaña nueva.
     if (session.whatsappGroupUrl) {
       window.open(session.whatsappGroupUrl, "_blank", "noopener,noreferrer");
     }
 
-    await updateLeadStage(session.leadId, "whatsapp_joined", eventId).catch(
-      () => undefined,
-    );
+    await updateLeadStage(session.leadId, "whatsapp_joined", {
+      eventId: leadEventId,
+      eventSourceUrl: window.location.href,
+    }).catch(() => undefined);
     router.push("/registro");
   };
 

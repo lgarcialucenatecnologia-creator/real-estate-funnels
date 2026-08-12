@@ -82,8 +82,25 @@ export const createLead = (payload: CreateLeadPayload) =>
     body: JSON.stringify(payload),
   });
 
-export const updateLeadStage = (id: string, stage: LeadStage, eventId?: string) =>
+export interface StageEventOptions {
+  /** Mismo ID que el evento del pixel del navegador, para que Meta deduplique. */
+  eventId?: string;
+  /** URL donde ocurrió el evento; Meta la pide para atribuir bien. */
+  eventSourceUrl?: string;
+}
+
+export const updateLeadStage = (
+  id: string,
+  stage: LeadStage,
+  options: StageEventOptions = {},
+) =>
   request<Lead>(`/leads/${id}/stage`, {
     method: "PATCH",
-    body: JSON.stringify({ stage, ...(eventId ? { eventId } : {}) }),
+    body: JSON.stringify({
+      stage,
+      ...(options.eventId ? { eventId: options.eventId } : {}),
+      ...(options.eventSourceUrl
+        ? { eventSourceUrl: options.eventSourceUrl }
+        : {}),
+    }),
   });

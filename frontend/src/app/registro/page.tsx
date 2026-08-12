@@ -1,18 +1,22 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import { ProgressBar } from "@/components/funnel/progress-bar";
 import { FunnelShell } from "@/components/layout/funnel-shell";
 import { GoldButton } from "@/components/ui/gold-button";
 import { WhatsappIcon } from "@/components/ui/whatsapp-icon";
 import { updateLeadStage } from "@/lib/api";
+import { EVENT_CONTENT_NAME, newEventId, trackEvent } from "@/lib/pixel";
 import { useFunnelSession } from "@/lib/use-funnel-session";
 
 export default function RegistroPage() {
   const router = useRouter();
   const { session, isReady } = useFunnelSession();
+  // Strict Mode corre los efectos dos veces en dev; un evento de conversión
+  // duplicado ensucia los números de la campaña, así que se manda una sola vez.
+  const hasTracked = useRef(false);
 
   useEffect(() => {
     if (!isReady) return;
@@ -22,7 +26,20 @@ export default function RegistroPage() {
       return;
     }
 
-    void updateLeadStage(session.leadId, "registered").catch(() => undefined);
+    if (hasTracked.current) return;
+    hasTracked.current = true;
+
+    const eventId = newEventId();
+    trackEvent(
+      "CompleteRegistration",
+      { content_name: EVENT_CONTENT_NAME },
+      eventId,
+    );
+
+    void updateLeadStage(session.leadId, "registered", {
+      eventId,
+      eventSourceUrl: window.location.href,
+    }).catch(() => undefined);
   }, [isReady, session, router]);
 
   if (!session) {
