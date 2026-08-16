@@ -8,6 +8,8 @@ import { ProfilesSection } from "@/components/landing/profiles-section";
 import { UniquenessSection } from "@/components/landing/uniqueness-section";
 import { FunnelShell } from "@/components/layout/funnel-shell";
 
+console.log("Hello World");
+
 export default function HomePage() {
   return (
     <FunnelShell variant="landing">
