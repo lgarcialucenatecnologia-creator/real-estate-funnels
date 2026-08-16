@@ -13,25 +13,26 @@ export function UniquenessSection() {
         />
 
         <SectionHeading
-          title="¿Por qué este evento es"
-          highlight="único?"
+          title="¿Por qué esta clase es"
+          highlight="completamente distinta?"
           className="relative"
         />
 
         <p className="font-body relative mx-auto mt-6 max-w-3xl text-base leading-relaxed text-ivory/75 text-pretty sm:text-lg">
-          El mercado inmobiliario cambió y seguir comprando por emoción o
-          intuición te puede costar miles de dólares. Este evento no se basa en
-          teoría de libros: está diseñado desde la experiencia real de más de{" "}
+          Comprar finca raíz por emoción o por lo bonito del apartamento modelo
+          te puede costar los ahorros de toda tu vida. Yo me quebré dos veces en
+          la vida por no saber hacer números básicos. Esta clase está construida
+          desde la calle, después de hacer más de{" "}
           <span className="font-heading font-bold text-gold">
-            75 operaciones de compraventa
-          </span>{" "}
-          y un método práctico que elimina las trampas comerciales de la sala
-          de ventas.
+            75 compras y ventas reales
+          </span>
+          , para mostrarte exactamente cómo negociar de frente y comprar barato
+          sin caer en trampas.
         </p>
 
         <div className="relative mx-auto mt-8 max-w-md">
           <CtaLink href="#registro" className="w-full">
-            ¡Quiero participar en vivo!
+            👉 ¡Reservar mi cupo en vivo ahora!
           </CtaLink>
         </div>
       </div>

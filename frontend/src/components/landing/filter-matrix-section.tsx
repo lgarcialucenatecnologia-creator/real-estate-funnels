@@ -79,13 +79,13 @@ export function FilterMatrixSection() {
   return (
     <Reveal as="section" className="mt-20 sm:mt-28">
       <SectionHeading
-        title="¿Para quién es"
-        highlight="este entrenamiento?"
+        title="¿Este entrenamiento es para ti?"
+        highlight="Revisa esto con honestidad"
       />
 
       {/* Móvil: dos bloques apilados, cada uno con su propio encabezado. */}
       <div className="mt-10 space-y-6 sm:hidden">
-        <FilterGroup title="Esto es para ti SÍ…" items={yesItems} tone="yes" />
+        <FilterGroup title="Esto SÍ es para ti si…" items={yesItems} tone="yes" />
         <FilterGroup title="Esto NO es para ti si…" items={noItems} tone="no" />
       </div>
 
@@ -99,7 +99,7 @@ export function FilterMatrixSection() {
           </div>
           <div className="bg-tech-blue/20 px-5 py-4">
             <p className="font-heading text-sm font-bold tracking-wide text-ivory uppercase">
-              Esto es para ti SÍ…
+              Esto SÍ es para ti si…
             </p>
           </div>
         </div>
@@ -123,7 +123,9 @@ export function FilterMatrixSection() {
       </div>
 
       <div className="mt-10 text-center">
-        <CtaLink href="#registro">¡Sí, quiero mi cupo gratuito!</CtaLink>
+        <CtaLink href="#registro">
+          👉 ¡Quiero mi cupo gratis a la clase!
+        </CtaLink>
       </div>
     </Reveal>
   );

@@ -8,7 +8,7 @@ export function AgendaSection() {
   return (
     <Reveal as="section" className="mt-20 sm:mt-28">
       <SectionHeading
-        title="Agenda estas fechas"
+        title="Guarda estas dos fechas"
         highlight="en tu calendario"
       />
 
@@ -38,7 +38,9 @@ export function AgendaSection() {
       </div>
 
       <div className="mt-12 text-center">
-        <CtaLink href="#registro">¡Sí, quiero mi cupo gratuito!</CtaLink>
+        <CtaLink href="#registro">
+          👉 ¡Quiero mi cupo gratis a la clase!
+        </CtaLink>
       </div>
     </Reveal>
   );

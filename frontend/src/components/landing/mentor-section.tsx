@@ -15,8 +15,8 @@ export function MentorSection() {
 
         <Reveal as="div" className="order-1 min-w-0 lg:order-2">
           <SectionHeading
-            title="Soy Luis Fernando García"
-            highlight="(Luifer)"
+            title="¿Quién es Luis Fernando García"
+            highlight="(Luifer)?"
             align="left"
           />
 
@@ -44,10 +44,10 @@ export function MentorSection() {
           Pero lo más importante es esto:
         </h3>
         <p className="font-body mt-4 text-base leading-relaxed text-ivory/75 text-pretty sm:text-lg">
-          Hoy tengo una Metodología probada, actualizada y respaldada por
-          resultados reales, diseñada específicamente para que dejes de tomar
-          decisiones por intuición o presión comercial, y empieces a operar con
-          la estructura de un verdadero inversionista.
+          Yo no te voy a enseñar teoría de cartilla ni palabras difíciles. Te
+          voy a enseñar lo que a mí me costó años, quiebras y millones aprender
+          en la calle: que el éxito en los bienes raíces está en lo simple y que
+          la plata se asegura el día que aprendes a comprar barato.
         </p>
       </Reveal>
     </section>

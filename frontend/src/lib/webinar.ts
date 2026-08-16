@@ -8,108 +8,110 @@ export const WEBINAR_TIME =
 /**
  * Fechas que se muestran en la insignia del hero.
  * Cámbialas con NEXT_PUBLIC_WEBINAR_DATES (ej. "14 y 15 de agosto").
- * Si la variable no está definida se cae al copy genérico anterior, para que
- * la landing nunca quede anunciando una fecha vacía.
+ * Va en minúscula porque se intercala dentro de frases; los sitios que la
+ * muestran como titulillo ya aplican `uppercase` por CSS.
  */
 export const WEBINAR_DATES =
-  process.env.NEXT_PUBLIC_WEBINAR_DATES?.trim() || "2 días en vivo";
+  process.env.NEXT_PUBLIC_WEBINAR_DATES?.trim() || "próximo jueves y viernes";
 
-export const webinarDatesLine = `Recuerda estas fechas: ${WEBINAR_DATES} a las ${WEBINAR_TIME} (Hora Colombia)`;
+export const heroDatesLine = `Evento 100% online y gratuito | ${WEBINAR_DATES} a las ${WEBINAR_TIME} (Hora Colombia)`;
 
-export const learningsDatesLine = `Estos son los aprendizajes clave que obtendrás al asistir a las 2 clases el ${WEBINAR_DATES} a las ${WEBINAR_TIME} (hora Colombia).`;
+export const webinarDatesLine = `Guarda estas fechas: ${WEBINAR_DATES} a las ${WEBINAR_TIME} (Hora Colombia)`;
+
+export const learningsDatesLine = `Esto es exactamente lo que te voy a enseñar paso a paso el ${WEBINAR_DATES} a las ${WEBINAR_TIME} (Hora Colombia).`;
 
 export const PROFILES = [
   {
-    title: "Profesionales y Empresarios",
+    title: "Profesionales e Independientes con Ahorros",
     description:
-      "Que tienen ahorros o capital estancado y quieren protegerlo contra la inflación construyendo un patrimonio sólido sin especular.",
+      "Tienen un capital guardado y quieren ponerlo en inversiones seguras que no les quiten el sueño ni se devalúen.",
   },
   {
-    title: "Inversionistas Principiantes",
+    title: "Compradores que Quieren Invertir Seguro",
     description:
-      "Que cuentan con capacidad de pago o crédito pero no saben cómo filtrar oportunidades ni calcular la utilidad neta real.",
+      "Tienen capacidad de crédito o cuota mensual, pero les da miedo equivocarse, meterse en un mal negocio o pagar de más.",
   },
   {
-    title: "Compradores de Finca Raíz",
+    title: "Cazadores de Oportunidades y Cesiones",
     description:
-      "Que van a adquirir su próxima propiedad y buscan un sistema para negociar entre un 10% y un 20% por debajo del mercado real.",
+      "Quieren aprender a encontrar personas o constructoras con necesidad de vender rápido para comprar con descuentos de 20 a 40 millones.",
   },
   {
-    title: "Personas que Buscan Tranquilidad",
+    title: "Personas que Buscan Tranquilidad y Respaldo",
     description:
-      "Que quieren dejar de improvisar en inversiones que no entienden para construir un legado blindado y seguro para su familia.",
+      "Quieren dejar de inventar en cosas raras que no entienden y asegurar el techo y el futuro de su familia con propiedades reales.",
   },
 ] as const;
 
 export const LEARNINGS = [
   {
-    title: "Diagnóstico Financiero y Liquidez",
+    title: "Ordena tu plata y define tu límite",
     description:
-      "Aprende a determinar tu presupuesto máximo, tu liquidez de seguridad y evita comprometer dinero en propiedades que después no puedas sostener.",
+      "Aprende a calcular exactamente cuánto dinero puedes comprometer sin quedar ahogado, dejando siempre una plata de seguridad intocable para dormir en paz.",
   },
   {
-    title: "El Filtro de 15 Minutos",
+    title: "El Filtro de 15 Minutos para descartar engaños",
     description:
-      "Descubre cómo investigar comparables, detectar publicaciones infladas y evaluar si una preventa o cesión de derechos es un negocio real o solo marketing.",
+      "Cómo revisar los precios de la zona, detectar si un apartamento está sobrevalorado y saber en minutos si una preventa o cesión de derechos vale la pena o es una trampa.",
   },
   {
-    title: "Negociación con Números Fríos",
+    title: "Negociación para ganar al comprar",
     description:
-      "Domina el mapa de concesiones y los guiones para presentar ofertas estructuradas que te aseguren mínimo un 15% de descuento en la mesa.",
+      "Los guiones y argumentos exactos para hacer ofertas por debajo de la mesa y lograr que el vendedor te baje entre 20 y 40 millones sin pelear ni ofenderlo.",
   },
   {
-    title: "Expediente de Riesgos y Blindaje",
+    title: "Revisa antes de soltar un solo peso",
     description:
-      "Identifica alertas jurídicas, físicas y financieras antes de entregar cualquier anticipo o firmar la promesa de compraventa.",
+      "La lista de papeles, deudas y riesgos que debes revisar antes de firmar cualquier promesa o entregar un anticipo para que nunca te estafen.",
   },
 ] as const;
 
 export const FILTER_MATRIX = [
   {
-    no: 'Prefieres seguir comprando inmuebles por emoción o por lo bonito del "apartamento modelo", arriesgando los ahorros de tu vida.',
-    yes: "Tienes ahorros o capacidad de inversión y estás listo para construir un portafolio sólido que te dé tranquilidad.",
+    no: "Prefieres seguir comprando inmuebles por emoción o porque la sala de ventas se ve bonita, arriesgando los ahorros de tu vida.",
+    yes: "Tienes ahorros o capacidad de pago y quieres meter tu plata en inversiones refugio que te den tranquilidad.",
   },
   {
-    no: "Buscas fórmulas de dinero rápido, especulación inmobiliaria o rentabilidades milagrosas sin metodología.",
-    yes: "Estás cansado de opciones sospechosas y quieres aprender a identificar verdaderas inversiones refugio.",
+    no: "Buscas fórmulas mágicas de hacerte rico de la noche a la mañana o meterte en negocios raros que no entiendes.",
+    yes: "Quieres aprender un método simple y comprobado para comprar inmuebles baratos con números claros sobre la mesa.",
   },
   {
-    no: "No estás dispuesto a dedicar 2 horas a aprender a leer números fríos y prefieres dejar tu utilidad en el bolsillo del vendedor.",
-    yes: "Quieres aprender a negociar como un profesional para ganarte mínimo un 15% de descuento al momento de comprar.",
+    no: "Te da pena negociar y prefieres pagar el precio completo que te pide el vendedor en internet.",
+    yes: "Quieres aprender a pararte firme en la mesa para sacarle entre 20 a 40 millones de descuento a tu próxima compra.",
   },
   {
-    no: "Te conformas con dejar tu dinero perdiendo valor en el banco por miedo a cometer un error al invertir.",
-    yes: "Eres profesional, independiente o empresario y buscas un método claro para proteger tu patrimonio y a tu familia.",
+    no: "Prefieres dejar tu plata perdiendo valor quieta en el banco por miedo a dar el paso.",
+    yes: "Eres una persona decidida que quiere aprender a invertir sobre seguro para respaldar el futuro de su familia.",
   },
 ] as const;
 
 /** Cifras de autoridad, derivadas del copy real de MENTOR_POINTS abajo. */
 export const MENTOR_STATS = [
-  { value: 15, suffix: "", label: "Años de trayectoria" },
-  { value: 75, suffix: "+", label: "Operaciones de compraventa" },
-  { value: 7, suffix: "+", label: "Inversiones patrimoniales" },
+  { value: 15, suffix: "", label: "Años comprando y vendiendo" },
+  { value: 75, suffix: "+", label: "Operaciones reales de compraventa" },
+  { value: 20, suffix: "-40M", label: "De descuento en tu próxima compra" },
 ] as const;
 
 export const MENTOR_POINTS = [
-  "Inversionista inmobiliario activo, mentor financiero y creador del Método OPORTUNO.",
-  "He ejecutado más de 75 operaciones de compraventa y más de 7 inversiones patrimoniales personales en los últimos 15 años.",
-  "Quebré dos veces. Pasé de vender 5.000 ensaladas de frutas al mes sin tener para una hamburguesa y lavar carros en la calle, a desarrollar un método técnico para no volver a perder dinero.",
-  "He acompañado a cientos de personas y empresas a estructurar decisiones financieras inteligentes.",
+  "Inversionista inmobiliario activo y creador del Método OPORTUNO.",
+  "He realizado más de 75 operaciones de compra y venta de inmuebles en los últimos 15 años.",
+  "Me quebré dos veces. Pasé de vender 5.000 ensaladas de frutas al mes sin tener un peso en el bolsillo y lavar carros en la calle, a entender que la tranquilidad financiera se construye con cosas básicas y seguras.",
+  "He acompañado a cientos de personas a tomar decisiones inteligentes con su dinero sin enredos técnicos.",
 ] as const;
 
 export const AGENDA = [
   {
     badge: "Clase 1",
-    day: "Jueves 13 de agosto",
-    title: "Diagnóstico Financiero y Filtro de Oportunidades",
+    day: "Próximo Jueves",
+    title: "Diagnóstico y Filtro de Oportunidades",
     description:
-      "Cómo ordenar tu dinero, calcular tu liquidez de seguridad y aplicar el filtro de 15 minutos para descartar malas ofertas.",
+      "Cómo ordenar tus cuentas, calcular tu plata de seguridad y aplicar el filtro de 15 minutos para encontrar propiedades baratas y descartar malas opciones.",
   },
   {
     badge: "Clase 2",
-    day: "Viernes 14 de agosto",
-    title: "Negociación Estratégica y Blueprint Patrimonial",
+    day: "Próximo Viernes",
+    title: "El Secreto para Comprar Barato y Negociar",
     description:
-      "El sistema para ganarte el 15% en la mesa de negociación, revisar riesgos legales y trazar tu plan de inversión a 90 días.",
+      "El paso a paso para negociar de 20 a 40 millones de descuento, blindar tus contratos y trazar tu plan para ejecutar con seguridad.",
   },
 ] as const;

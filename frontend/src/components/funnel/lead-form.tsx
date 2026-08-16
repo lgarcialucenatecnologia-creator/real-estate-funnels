@@ -87,7 +87,7 @@ export function LeadForm({ id }: LeadFormProps) {
       <div className="grid grid-cols-2 gap-4">
         <TextField
           label="Nombre"
-          placeholder="Tu nombre"
+          placeholder="Escribe tu nombre"
           autoComplete="given-name"
           error={errors.firstName?.message}
           {...register("firstName")}
@@ -95,7 +95,7 @@ export function LeadForm({ id }: LeadFormProps) {
 
         <TextField
           label="Apellido"
-          placeholder="Tu apellido"
+          placeholder="Escribe tu apellido"
           autoComplete="family-name"
           error={errors.lastName?.message}
           {...register("lastName")}
@@ -116,7 +116,7 @@ export function LeadForm({ id }: LeadFormProps) {
         name="phoneNumber"
         render={({ field }) => (
           <PhoneField
-            label="WhatsApp"
+            label="Número de WhatsApp"
             countryCode={countryCode}
             onCountryChange={(code) =>
               setValue("countryCode", code, { shouldValidate: false })
@@ -143,7 +143,7 @@ export function LeadForm({ id }: LeadFormProps) {
       )}
 
       <CtaButton type="submit" loading={isSubmitting}>
-        {isSubmitting ? "Enviando..." : "¡Sí, quiero mi cupo gratuito!"}
+        {isSubmitting ? "Enviando..." : "👉 ¡Quiero mi cupo gratis a la clase!"}
       </CtaButton>
 
       <p className="px-1 text-center font-body text-[11px] leading-snug text-ivory/70 sm:text-xs">

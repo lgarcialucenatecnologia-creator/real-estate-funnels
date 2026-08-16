@@ -1,6 +1,6 @@
 import { LuiferPortrait } from "@/components/brand/luifer-portrait";
 import { LeadForm } from "@/components/funnel/lead-form";
-import { WEBINAR_DATES } from "@/lib/webinar";
+import { heroDatesLine, WEBINAR_DATES } from "@/lib/webinar";
 
 import { HeadlineWithPortrait } from "./headline-with-portrait";
 
@@ -15,13 +15,15 @@ export function HeroSection() {
 
         <HeadlineWithPortrait />
 
-        <h2 className="font-heading mt-5 text-base leading-snug font-bold tracking-wide text-balance text-gold uppercase sm:text-lg lg:mt-6 lg:text-xl xl:text-2xl">
-          La utilidad se asegura al comprar, no al vender.
+        <h2 className="font-heading mt-5 max-w-xl text-base leading-snug font-bold text-balance text-gold sm:text-lg lg:mt-6 lg:text-xl">
+          La plata en finca raíz no se gana rezando para vender caro en 10
+          años: se gana el día exacto que compras bien.
         </h2>
 
         <p className="font-body mt-3 max-w-lg text-sm leading-relaxed text-ivory/75 text-pretty sm:text-base lg:mt-4 lg:max-w-xl lg:text-lg">
-          Aprende el Método OPORTUNO para analizar, comparar y negociar
-          inmuebles con números fríos antes de entregar el primer peso.
+          Descubre el paso a paso para analizar números sencillos, encontrar
+          oportunidades ocultas y negociar sin que te metan los dedos en la
+          boca.
         </p>
       </div>
 
@@ -39,6 +41,11 @@ export function HeroSection() {
         <div className="mt-6">
           <LeadForm />
         </div>
+
+        <p className="font-body mt-5 flex items-start justify-center gap-2 text-center text-[11px] leading-snug text-ivory/70 sm:text-xs">
+          <span aria-hidden="true">🔒</span>
+          <span>{heroDatesLine}</span>
+        </p>
       </div>
 
       {/* 3) Imagen — solo mobile, al final */}

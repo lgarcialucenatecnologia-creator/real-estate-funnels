@@ -6,12 +6,15 @@ import { SectionHeading } from "./section-heading";
 export function LearningsSection() {
   return (
     <Reveal as="section" className="mt-20 sm:mt-28">
-      <SectionHeading title="¿Qué aprenderás" highlight="en 2 días?" />
+      <SectionHeading
+        title="Lo que vas a aprender en estos"
+        highlight="2 días de clase"
+      />
 
       <div className="mt-10 grid gap-4 lg:grid-cols-[0.85fr_1.15fr] lg:gap-5">
         <aside className="surface-card flex flex-col justify-center border-gold/30 bg-gold/5 p-6 sm:p-8">
           <p className="font-heading text-xs tracking-[0.22em] text-gold uppercase">
-            Fechas del entrenamiento
+            Fechas de la clase
           </p>
           <p className="font-body mt-4 text-base leading-relaxed text-ivory/80">
             {learningsDatesLine}
@@ -38,8 +41,9 @@ export function LearningsSection() {
       </div>
 
       <p className="font-heading mt-10 text-center text-base font-bold text-ivory/90 sm:text-lg">
-        Prepárate para transformar tus decisiones financieras con el poder del{" "}
-        <span className="text-gold-gradient">Método OPORTUNO</span>.
+        Prepárate para dominar el{" "}
+        <span className="text-gold-gradient">Método OPORTUNO</span> y aprender a
+        comprar como los que de verdad hacen plata con inmuebles.
       </p>
     </Reveal>
   );
