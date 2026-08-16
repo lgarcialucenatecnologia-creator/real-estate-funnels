@@ -253,7 +253,12 @@ export const COUNTRIES: Country[] = RAW_COUNTRIES.map((country) => ({
   flag: flagFromCode(country.code),
 }));
 
-export const DEFAULT_COUNTRY_CODE = "CO";
+/**
+ * Esta landing capta colombianos en el exterior, así que el selector abre en
+ * +1 (EE.UU.) y no en +57: la mayoría registra su WhatsApp de allá. Quien esté
+ * en otro país cambia el código en el mismo selector.
+ */
+export const DEFAULT_COUNTRY_CODE = "US";
 
 export const findCountry = (code: string): Country =>
   COUNTRIES.find((country) => country.code === code) ??

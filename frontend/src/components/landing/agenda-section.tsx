@@ -1,4 +1,4 @@
-import { AGENDA, WEBINAR_TIME } from "@/lib/webinar";
+import { AGENDA, WEBINAR_TIME, WEBINAR_TIMEZONE } from "@/lib/webinar";
 import { CtaLink } from "@/components/ui/cta-link";
 import { Reveal } from "@/components/ui/reveal";
 
@@ -8,12 +8,12 @@ export function AgendaSection() {
   return (
     <Reveal as="section" className="mt-20 sm:mt-28">
       <SectionHeading
-        title="Guarda estas dos fechas"
-        highlight="en tu calendario"
+        title="Guarda las fechas de transmisión"
+        highlight="en tu zona horaria"
       />
 
       <p className="font-body mt-4 text-center text-sm text-graphite">
-        Ambos días a las {WEBINAR_TIME} · Hora Colombia
+        Ambos días a las {WEBINAR_TIME} · {WEBINAR_TIMEZONE}
       </p>
 
       <div className="mt-10 grid gap-5 md:grid-cols-2">
@@ -39,7 +39,7 @@ export function AgendaSection() {
 
       <div className="mt-12 text-center">
         <CtaLink href="#registro">
-          👉 ¡Quiero mi cupo gratis a la clase!
+          👉 ¡Quiero mi cupo gratis a la clase online!
         </CtaLink>
       </div>
     </Reveal>

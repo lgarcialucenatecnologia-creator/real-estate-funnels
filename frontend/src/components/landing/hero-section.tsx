@@ -10,20 +10,20 @@ export function HeroSection() {
       {/* 1) Copy — primero en mobile */}
       <div className="animate-fade-up order-1 min-w-0 lg:flex lg:flex-col lg:justify-between lg:self-stretch">
         <span className="inline-flex items-center gap-2 self-start rounded-full border border-gold/30 bg-gold/8 px-4 py-2 font-body text-xs tracking-[0.24em] text-gold uppercase lg:px-5 lg:py-2.5 lg:text-sm">
-          Webinar gratuito · {WEBINAR_DATES}
+          Clase online gratuita · {WEBINAR_DATES}
         </span>
 
         <HeadlineWithPortrait />
 
         <h2 className="font-heading mt-5 max-w-xl text-base leading-snug font-bold text-balance text-gold sm:text-lg lg:mt-6 lg:text-xl">
-          La plata en finca raíz no se gana rezando para vender caro en 10
-          años: se gana el día exacto que compras bien.
+          Deja de mandar plata para que se esfume en gastos diarios o de pagar
+          &quot;precio de extranjero&quot;.
         </h2>
 
         <p className="font-body mt-3 max-w-lg text-sm leading-relaxed text-ivory/75 text-pretty sm:text-base lg:mt-4 lg:max-w-xl lg:text-lg">
-          Descubre el paso a paso para analizar números sencillos, encontrar
-          oportunidades ocultas y negociar sin que te metan los dedos en la
-          boca.
+          Descubre cómo encontrar, analizar y negociar propiedades en Colombia
+          desde Estados Unidos con números claros para asegurar el futuro de tu
+          familia.
         </p>
       </div>
 

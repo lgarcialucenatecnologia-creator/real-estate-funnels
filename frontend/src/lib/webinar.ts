@@ -1,5 +1,5 @@
 /**
- * Copy y datos editables del webinar.
+ * Copy y datos editables del webinar — variante para colombianos en el exterior.
  * Cambia la hora con NEXT_PUBLIC_WEBINAR_TIME (ej. "11:00 a.m.").
  */
 export const WEBINAR_TIME =
@@ -14,74 +14,83 @@ export const WEBINAR_TIME =
 export const WEBINAR_DATES =
   process.env.NEXT_PUBLIC_WEBINAR_DATES?.trim() || "próximo jueves y viernes";
 
-export const heroDatesLine = `Evento 100% online y gratuito | ${WEBINAR_DATES} a las ${WEBINAR_TIME} (Hora Colombia)`;
+/**
+ * La audiencia de esta landing está repartida entre husos horarios, así que la
+ * hora siempre se anuncia con su referencia. Cámbiala con
+ * NEXT_PUBLIC_WEBINAR_TIMEZONE si la transmisión se ancla a otra zona.
+ */
+export const WEBINAR_TIMEZONE =
+  process.env.NEXT_PUBLIC_WEBINAR_TIMEZONE?.trim() ||
+  "Hora Colombia / Este de EE.UU.";
 
-export const webinarDatesLine = `Guarda estas fechas: ${WEBINAR_DATES} a las ${WEBINAR_TIME} (Hora Colombia)`;
+export const heroDatesLine = `Clase 100% online y gratuita | ${WEBINAR_DATES} a las ${WEBINAR_TIME} (${WEBINAR_TIMEZONE})`;
 
-export const learningsDatesLine = `Esto es exactamente lo que te voy a enseñar paso a paso el ${WEBINAR_DATES} a las ${WEBINAR_TIME} (Hora Colombia).`;
+export const webinarDatesLine = `Guarda estas fechas: ${WEBINAR_DATES} a las ${WEBINAR_TIME} (${WEBINAR_TIMEZONE})`;
+
+export const learningsDatesLine = `Aprende a invertir en Colombia desde cualquier lugar de EE.UU. el ${WEBINAR_DATES} a las ${WEBINAR_TIME} (${WEBINAR_TIMEZONE}).`;
 
 export const PROFILES = [
   {
-    title: "Profesionales e Independientes con Ahorros",
+    title: "Colombianos con Ahorros en Dólares",
     description:
-      "Tienen un capital guardado y quieren ponerlo en inversiones seguras que no les quiten el sueño ni se devalúen.",
+      "Que quieren aprovechar el poder del dólar en Colombia para comprar propiedades seguras sin intermediarios que les inflen los precios.",
   },
   {
-    title: "Compradores que Quieren Invertir Seguro",
+    title: "Los que Sueñan con Regresar a Colombia",
     description:
-      "Tienen capacidad de crédito o cuota mensual, pero les da miedo equivocarse, meterse en un mal negocio o pagar de más.",
+      'Que llevan años diciendo "voy por dos años y me devuelvo" y necesitan construir una base económica sólida para volver a vivir tranquilos con su familia.',
   },
   {
-    title: "Cazadores de Oportunidades y Cesiones",
+    title: "Los que Envían Remesas Constantemente",
     description:
-      "Quieren aprender a encontrar personas o constructoras con necesidad de vender rápido para comprar con descuentos de 20 a 40 millones.",
+      "Que quieren cambiar la dinámica de solo mandar plata para gastos de consumo y prefieren dejarle a su familia activos y techos propios que de verdad renten.",
   },
   {
-    title: "Personas que Buscan Tranquilidad y Respaldo",
+    title: "Inversionistas a Distancia que Exigen Seguridad",
     description:
-      "Quieren dejar de inventar en cosas raras que no entienden y asegurar el techo y el futuro de su familia con propiedades reales.",
+      "Que necesitan aprender a revisar papeles, deudas y contratos en Colombia sin tener que viajar, para no caer en trampas ni perder su capital.",
   },
 ] as const;
 
 export const LEARNINGS = [
   {
-    title: "Ordena tu plata y define tu límite",
+    title: "Convierte tus dólares en respaldo real",
     description:
-      "Aprende a calcular exactamente cuánto dinero puedes comprometer sin quedar ahogado, dejando siempre una plata de seguridad intocable para dormir en paz.",
+      "Cómo presupuestar tus envíos de dinero sin descapitalizarte en Estados Unidos, asegurando siempre una reserva intocable de seguridad.",
   },
   {
-    title: "El Filtro de 15 Minutos para descartar engaños",
+    title: 'Detecta el "Precio de Extranjero" y las Cesiones',
     description:
-      "Cómo revisar los precios de la zona, detectar si un apartamento está sobrevalorado y saber en minutos si una preventa o cesión de derechos vale la pena o es una trampa.",
+      "Cómo comparar precios reales de cualquier ciudad de Colombia por internet y encontrar cesiones urgentes de personas que necesitan vender ya mismo con descuentos gigantes.",
   },
   {
-    title: "Negociación para ganar al comprar",
+    title: "Negocia a distancia como si estuvieras en Colombia",
     description:
-      "Los guiones y argumentos exactos para hacer ofertas por debajo de la mesa y lograr que el vendedor te baje entre 20 y 40 millones sin pelear ni ofenderlo.",
+      "Aprende los guiones y condiciones exactas para negociar con constructoras o propietarios y ganarte de 20 a 40 millones en la mesa de compra.",
   },
   {
-    title: "Revisa antes de soltar un solo peso",
+    title: "Blindaje legal y revisión sin viajar",
     description:
-      "La lista de papeles, deudas y riesgos que debes revisar antes de firmar cualquier promesa o entregar un anticipo para que nunca te estafen.",
+      "Los documentos claves (certificados, paz y salvos, escrituras) que debes exigir antes de transferir un solo dólar para que tu inversión esté 100% protegida.",
   },
 ] as const;
 
 export const FILTER_MATRIX = [
   {
-    no: "Prefieres seguir comprando inmuebles por emoción o porque la sala de ventas se ve bonita, arriesgando los ahorros de tu vida.",
-    yes: "Tienes ahorros o capacidad de pago y quieres meter tu plata en inversiones refugio que te den tranquilidad.",
+    no: "Estás cómodo mandando dólares a Colombia para que se gasten en mercado y cosas que no dejan nada a futuro.",
+    yes: "Quieres que el sacrificio de tus jornadas en Estados Unidos se convierta en propiedades reales a tu nombre.",
   },
   {
-    no: "Buscas fórmulas mágicas de hacerte rico de la noche a la mañana o meterte en negocios raros que no entiendes.",
-    yes: "Quieres aprender un método simple y comprobado para comprar inmuebles baratos con números claros sobre la mesa.",
+    no: "Prefieres comprar a ciegas lo primero que te ofrezca un conocido o pagar el sobreprecio que le ponen al que vive afuera.",
+    yes: "Quieres aprender a revisar los números reales de cualquier propiedad en Colombia y negociar con fuerza.",
   },
   {
-    no: "Te da pena negociar y prefieres pagar el precio completo que te pide el vendedor en internet.",
-    yes: "Quieres aprender a pararte firme en la mesa para sacarle entre 20 a 40 millones de descuento a tu próxima compra.",
+    no: "Buscas negocios mágicos por internet o promesas de hacerte millonario sin entender en qué estás metiendo tu plata.",
+    yes: "Buscas inversiones refugio, sencillas y seguras, de esas que te dejan dormir tranquilo por las noches.",
   },
   {
-    no: "Prefieres dejar tu plata perdiendo valor quieta en el banco por miedo a dar el paso.",
-    yes: "Eres una persona decidida que quiere aprender a invertir sobre seguro para respaldar el futuro de su familia.",
+    no: "Te resignaste a pasar toda la vida en Estados Unidos trabajando sin armar un plan para volver a tu tierra.",
+    yes: "Tienes la meta clara de regresar a Colombia a vivir bien, estar con tu familia y tener respaldo financiero.",
   },
 ] as const;
 
@@ -89,29 +98,29 @@ export const FILTER_MATRIX = [
 export const MENTOR_STATS = [
   { value: 15, suffix: "", label: "Años comprando y vendiendo" },
   { value: 75, suffix: "+", label: "Operaciones reales de compraventa" },
-  { value: 20, suffix: "-40M", label: "De descuento en tu próxima compra" },
+  { value: 20, suffix: "-40M", label: "De ganancia al momento de comprar" },
 ] as const;
 
 export const MENTOR_POINTS = [
-  "Inversionista inmobiliario activo y creador del Método OPORTUNO.",
-  "He realizado más de 75 operaciones de compra y venta de inmuebles en los últimos 15 años.",
-  "Me quebré dos veces. Pasé de vender 5.000 ensaladas de frutas al mes sin tener un peso en el bolsillo y lavar carros en la calle, a entender que la tranquilidad financiera se construye con cosas básicas y seguras.",
-  "He acompañado a cientos de personas a tomar decisiones inteligentes con su dinero sin enredos técnicos.",
+  "Inversionista inmobiliario en Colombia, mentor y creador del Método OPORTUNO.",
+  "Más de 75 operaciones reales de compra y venta de inmuebles en los últimos 15 años.",
+  "Conozco el valor del trabajo duro: me quebré dos veces, vendí 5.000 ensaladas de frutas al mes sin tener para comer y lavé carros en la calle antes de entender cómo funciona el dinero de verdad.",
+  "He ayudado a decenas de colombianos en el exterior a invertir con cabeza fría en su país sin dejarse tumbar.",
 ] as const;
 
 export const AGENDA = [
   {
     badge: "Clase 1",
     day: "Próximo Jueves",
-    title: "Diagnóstico y Filtro de Oportunidades",
+    title: "Filtro Antiextranjero y Oportunidades Ocultas",
     description:
-      "Cómo ordenar tus cuentas, calcular tu plata de seguridad y aplicar el filtro de 15 minutos para encontrar propiedades baratas y descartar malas opciones.",
+      "Cómo buscar en Colombia desde USA, descartar precios inflados y encontrar cesiones urgentes con números fríos.",
   },
   {
     badge: "Clase 2",
     day: "Próximo Viernes",
-    title: "El Secreto para Comprar Barato y Negociar",
+    title: "El Secreto para Comprar Barato y Plan de Retorno",
     description:
-      "El paso a paso para negociar de 20 a 40 millones de descuento, blindar tus contratos y trazar tu plan para ejecutar con seguridad.",
+      "Cómo negociar a distancia para ganarte de 20 a 40 millones al comprar y estructurar tus inversiones para volver a vivir sabroso.",
   },
 ] as const;

@@ -116,7 +116,7 @@ export function LeadForm({ id }: LeadFormProps) {
         name="phoneNumber"
         render={({ field }) => (
           <PhoneField
-            label="Número de WhatsApp"
+            label="WhatsApp (con código de país)"
             countryCode={countryCode}
             onCountryChange={(code) =>
               setValue("countryCode", code, { shouldValidate: false })
@@ -143,7 +143,9 @@ export function LeadForm({ id }: LeadFormProps) {
       )}
 
       <CtaButton type="submit" loading={isSubmitting}>
-        {isSubmitting ? "Enviando..." : "👉 ¡Quiero mi cupo gratis a la clase!"}
+        {isSubmitting
+          ? "Enviando..."
+          : "👉 ¡Quiero mi cupo gratis a la clase online!"}
       </CtaButton>
 
       <p className="px-1 text-center font-body text-[11px] leading-snug text-ivory/70 sm:text-xs">

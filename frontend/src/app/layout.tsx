@@ -11,20 +11,25 @@ export const metadata: Metadata = {
   /*
     WhatsApp y Facebook necesitan og:image absoluta. Sin metadataBase, Next
     resuelve la imagen de `opengraph-image.png` contra localhost y el preview
-    del enlace se cae. Va fijo al dominio de producción a propósito: es el único
-    host desde el que se comparte el enlace.
+    del enlace se cae. Esta variante se despliega en su propio host, así que el
+    dominio se define con NEXT_PUBLIC_SITE_URL; el valor por defecto queda solo
+    como respaldo para que el preview nunca apunte a localhost.
   */
-  metadataBase: new URL("https://webinar.garciainversiones.com"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+      "https://webinar.garciainversiones.com",
+  ),
   title: {
-    default: "Método OPORTUNO · Webinar gratuito | Luifer García",
+    default: "Invierte tus dólares en Colombia · Clase gratuita | Luifer García",
     template: "%s · Luifer García",
   },
   description:
-    "Aprende a invertir en bienes raíces para hacer crecer tu dinero y construir tu propio plan B. Webinar en vivo de 2 días con el Método OPORTUNO de Luifer García.",
+    "Aprende a comprar inmuebles en Colombia de 20 a 40 millones por debajo del mercado desde Estados Unidos. Clase online gratuita de 2 días con el Método OPORTUNO de Luifer García.",
   openGraph: {
-    title: "Método OPORTUNO · Webinar gratuito | Luifer García",
+    title:
+      "Invierte tus dólares en Colombia · Clase gratuita | Luifer García",
     description:
-      "Aprende a analizar, comparar y negociar inmuebles con números fríos antes de entregar el primer peso.",
+      "Encuentra, analiza y negocia propiedades en Colombia desde Estados Unidos con números claros, sin pagar precio de extranjero.",
     type: "website",
     locale: "es_LA",
     url: "/",
@@ -32,9 +37,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Método OPORTUNO · Webinar gratuito | Luifer García",
+    title:
+      "Invierte tus dólares en Colombia · Clase gratuita | Luifer García",
     description:
-      "Aprende a analizar, comparar y negociar inmuebles con números fríos antes de entregar el primer peso.",
+      "Encuentra, analiza y negocia propiedades en Colombia desde Estados Unidos con números claros, sin pagar precio de extranjero.",
   },
   robots: { index: true, follow: true },
 };

@@ -41,13 +41,14 @@ export function MentorSection() {
 
       <Reveal as="div" className="surface-card mt-10 p-6 sm:p-8">
         <h3 className="font-heading text-xl font-bold text-gold uppercase sm:text-2xl">
-          Pero lo más importante es esto:
+          Mi compromiso contigo es esto:
         </h3>
         <p className="font-body mt-4 text-base leading-relaxed text-ivory/75 text-pretty sm:text-lg">
-          Yo no te voy a enseñar teoría de cartilla ni palabras difíciles. Te
-          voy a enseñar lo que a mí me costó años, quiebras y millones aprender
-          en la calle: que el éxito en los bienes raíces está en lo simple y que
-          la plata se asegura el día que aprendes a comprar barato.
+          Yo sé lo que cuesta estar lejos de la tierra y de los tuyos. Por eso
+          no te voy a hablar con palabras técnicas ni promesas infladas. Te voy
+          a enseñar el método exacto y simple para que tus dólares compren
+          barato en Colombia, asegures de 20 a 40 millones por negocio y
+          construyas la tranquilidad que tú y tu familia se merecen.
         </p>
       </Reveal>
     </section>

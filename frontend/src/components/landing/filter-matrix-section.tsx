@@ -79,8 +79,8 @@ export function FilterMatrixSection() {
   return (
     <Reveal as="section" className="mt-20 sm:mt-28">
       <SectionHeading
-        title="¿Este entrenamiento es para ti?"
-        highlight="Revisa esto con honestidad"
+        title="¿Esta clase es para ti?"
+        highlight="Léelo con claridad"
       />
 
       {/* Móvil: dos bloques apilados, cada uno con su propio encabezado. */}
@@ -124,7 +124,7 @@ export function FilterMatrixSection() {
 
       <div className="mt-10 text-center">
         <CtaLink href="#registro">
-          👉 ¡Quiero mi cupo gratis a la clase!
+          👉 ¡Quiero mi cupo gratis a la clase online!
         </CtaLink>
       </div>
     </Reveal>

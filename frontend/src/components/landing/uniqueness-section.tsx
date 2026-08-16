@@ -13,26 +13,27 @@ export function UniquenessSection() {
         />
 
         <SectionHeading
-          title="¿Por qué esta clase es"
-          highlight="completamente distinta?"
+          title="¿Por qué esta clase es tu mejor"
+          highlight="herramienta desde USA?"
           className="relative"
         />
 
         <p className="font-body relative mx-auto mt-6 max-w-3xl text-base leading-relaxed text-ivory/75 text-pretty sm:text-lg">
-          Comprar finca raíz por emoción o por lo bonito del apartamento modelo
-          te puede costar los ahorros de toda tu vida. Yo me quebré dos veces en
-          la vida por no saber hacer números básicos. Esta clase está construida
-          desde la calle, después de hacer más de{" "}
+          Apenas en Colombia se enteran de que vives en el exterior, te quieren
+          cobrar más caro o venderte ilusiones. Yo sé lo que cuesta ganarse un
+          peso porque me ha tocado empezar desde cero y quebrarme dos veces. No
+          te voy a enseñar teoría: te voy a dar las herramientas prácticas para
+          que revises ofertas en Colombia en 15 minutos, negocies con fuerza y
+          asegures entre{" "}
           <span className="font-heading font-bold text-gold">
-            75 compras y ventas reales
-          </span>
-          , para mostrarte exactamente cómo negociar de frente y comprar barato
-          sin caer en trampas.
+            20 a 40 millones de ganancia
+          </span>{" "}
+          al momento de comprar.
         </p>
 
         <div className="relative mx-auto mt-8 max-w-md">
           <CtaLink href="#registro" className="w-full">
-            👉 ¡Reservar mi cupo en vivo ahora!
+            👉 ¡Reservar mi cupo gratis ahora!
           </CtaLink>
         </div>
       </div>
