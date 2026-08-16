@@ -36,7 +36,18 @@ export interface LeadFilters {
   dateFrom?: string;
   /** Fecha calendario "YYYY-MM-DD"; se incluye hasta el final de ese día. */
   dateTo?: string;
+  /** Deja solo los que se inscribieron más de una vez. */
+  onlyReturning?: boolean;
 }
+
+/** `submissions` ordena por interés: más inscripciones primero. */
+export type LeadSort = 'recent' | 'submissions';
+
+const SORT_ORDERS: Record<LeadSort, Record<string, 1 | -1>> = {
+  recent: { createdAt: -1 },
+  // Desempata por fecha para que el orden sea estable entre páginas.
+  submissions: { submissionCount: -1, createdAt: -1 },
+};
 
 export interface PublicLead {
   id: string;
@@ -61,34 +72,72 @@ export class LeadsService {
     dto: CreateLeadDto,
     context: LeadRequestContext = {},
   ): Promise<PublicLead> {
-    const phoneE164 = `${dto.dialCode}${dto.phoneNumber}`;
+    const lead = await this.upsertByEmail(dto, context);
 
-    const lead = await this.leadModel.findOneAndUpdate(
-      { email: dto.email, phoneE164 },
-      {
-        $set: {
-          firstName: dto.firstName,
-          lastName: dto.lastName,
-          email: dto.email,
-          countryCode: dto.countryCode,
-          dialCode: dto.dialCode,
-          phoneNumber: dto.phoneNumber,
-          phoneE164,
-          ipAddress: context.ipAddress,
-          userAgent: context.userAgent,
-          ...(dto.tracking ? { tracking: dto.tracking } : {}),
-        },
-        $setOnInsert: { stage: LeadStage.Captured },
-      },
-      {
-        returnDocument: 'after',
-        upsert: true,
-        setDefaultsOnInsert: true,
-      },
+    this.logger.log(
+      `Lead capturado: ${lead.email} (${lead.phoneE164}) · inscripción #${lead.submissionCount}`,
     );
-
-    this.logger.log(`Lead capturado: ${lead.email} (${lead.phoneE164})`);
     return this.toPublicLead(lead);
+  }
+
+  /**
+   * Un correo, una ficha: si ya existe se actualizan sus datos con los del
+   * último envío y se suma una inscripción al historial.
+   *
+   * El `upsert` sobre un índice único tiene una carrera conocida: dos envíos
+   * simultáneos del mismo correo pueden no ver el documento del otro y ambos
+   * intentar insertar; el segundo revienta con E11000. Como para entonces el
+   * documento ya existe, reintentar una vez resuelve.
+   */
+  private async upsertByEmail(
+    dto: CreateLeadDto,
+    context: LeadRequestContext,
+    isRetry = false,
+  ): Promise<LeadDocument> {
+    const phoneE164 = `${dto.dialCode}${dto.phoneNumber}`;
+    const now = new Date();
+
+    try {
+      return await this.leadModel.findOneAndUpdate(
+        { email: dto.email },
+        {
+          $set: {
+            firstName: dto.firstName,
+            lastName: dto.lastName,
+            email: dto.email,
+            countryCode: dto.countryCode,
+            dialCode: dto.dialCode,
+            phoneNumber: dto.phoneNumber,
+            phoneE164,
+            lastSubmittedAt: now,
+            ipAddress: context.ipAddress,
+            userAgent: context.userAgent,
+            ...(dto.tracking ? { tracking: dto.tracking } : {}),
+          },
+          $inc: { submissionCount: 1 },
+          $push: {
+            submissions: { at: now, phoneE164, tracking: dto.tracking ?? {} },
+          },
+          $setOnInsert: { stage: LeadStage.Captured },
+        },
+        {
+          returnDocument: 'after',
+          upsert: true,
+          setDefaultsOnInsert: true,
+        },
+      );
+    } catch (error) {
+      if (isRetry || !this.isDuplicateKeyError(error)) throw error;
+      return this.upsertByEmail(dto, context, true);
+    }
+  }
+
+  private isDuplicateKeyError(error: unknown): boolean {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      (error as { code?: number }).code === 11000
+    );
   }
 
   async updateStage(
@@ -144,7 +193,12 @@ export class LeadsService {
     return this.toPublicLead(lead);
   }
 
-  async findAll(page = 1, limit = 25, filters: LeadFilters = {}) {
+  async findAll(
+    page = 1,
+    limit = 25,
+    filters: LeadFilters = {},
+    sort: LeadSort = 'recent',
+  ) {
     const safePage = Math.max(1, page);
     const safeLimit = Math.min(Math.max(1, limit), 100);
     const filter = this.buildFilter(filters);
@@ -152,7 +206,7 @@ export class LeadsService {
     const [items, total] = await Promise.all([
       this.leadModel
         .find(filter)
-        .sort({ createdAt: -1 })
+        .sort(SORT_ORDERS[sort] ?? SORT_ORDERS.recent)
         .skip((safePage - 1) * safeLimit)
         .limit(safeLimit)
         .lean()
@@ -164,10 +218,10 @@ export class LeadsService {
   }
 
   /** Trae todos los leads sin paginar, para exportar a CSV/Excel/PDF. */
-  async findAllForExport(filters: LeadFilters = {}) {
+  async findAllForExport(filters: LeadFilters = {}, sort: LeadSort = 'recent') {
     return this.leadModel
       .find(this.buildFilter(filters))
-      .sort({ createdAt: -1 })
+      .sort(SORT_ORDERS[sort] ?? SORT_ORDERS.recent)
       .lean()
       .exec();
   }
@@ -214,6 +268,12 @@ export class LeadsService {
       filter['tracking.utm_campaign'] = filters.campaign;
     }
 
+    // Los leads previos a esta función no tienen `submissionCount`, así que
+    // "más de una vez" se pregunta explícitamente por > 1, no por != 1.
+    if (filters.onlyReturning) {
+      filter.submissionCount = { $gt: 1 };
+    }
+
     if (filters.dateFrom || filters.dateTo) {
       const createdAt: { $gte?: Date; $lt?: Date } = {};
       if (filters.dateFrom) createdAt.$gte = new Date(filters.dateFrom);
@@ -229,10 +289,13 @@ export class LeadsService {
   }
 
   async stats() {
-    const grouped = await this.leadModel.aggregate<{
-      _id: LeadStage;
-      count: number;
-    }>([{ $group: { _id: '$stage', count: { $sum: 1 } } }]);
+    const [grouped, returning] = await Promise.all([
+      this.leadModel.aggregate<{
+        _id: LeadStage;
+        count: number;
+      }>([{ $group: { _id: '$stage', count: { $sum: 1 } } }]),
+      this.leadModel.countDocuments({ submissionCount: { $gt: 1 } }),
+    ]);
 
     const byStage = Object.values(LeadStage).reduce<Record<string, number>>(
       (acc, stage) => ({ ...acc, [stage]: 0 }),
@@ -243,7 +306,8 @@ export class LeadsService {
     });
 
     const total = Object.values(byStage).reduce((sum, count) => sum + count, 0);
-    return { total, byStage };
+    /** `returning` = leads que enviaron el formulario más de una vez. */
+    return { total, byStage, returning };
   }
 
   private toPublicLead(lead: LeadDocument): PublicLead {
