@@ -21,7 +21,11 @@ import { AdminAuthGuard } from '../common/guards/admin-auth.guard';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { ExportXlsxDto } from './dto/export-xlsx.dto';
 import { UpdateStageDto } from './dto/update-stage.dto';
-import { LeadsService } from './leads.service';
+import { LeadsService, type LeadSort } from './leads.service';
+
+/** Cualquier valor desconocido cae al orden por defecto. */
+const toLeadSort = (value?: string): LeadSort =>
+  value === 'submissions' ? 'submissions' : 'recent';
 
 @Controller('leads')
 export class LeadsController {
@@ -75,11 +79,19 @@ export class LeadsController {
     @Query('campaign') campaign?: string,
     @Query('dateFrom') dateFrom?: string,
     @Query('dateTo') dateTo?: string,
+    @Query('sort') sort?: string,
+    @Query('onlyReturning') onlyReturning?: string,
   ) {
     return this.leadsService.findAll(
       page ? parseInt(page, 10) : undefined,
       limit ? parseInt(limit, 10) : undefined,
-      { campaign, dateFrom, dateTo },
+      {
+        campaign,
+        dateFrom,
+        dateTo,
+        onlyReturning: onlyReturning === 'true',
+      },
+      toLeadSort(sort),
     );
   }
 
@@ -89,12 +101,18 @@ export class LeadsController {
     @Query('campaign') campaign?: string,
     @Query('dateFrom') dateFrom?: string,
     @Query('dateTo') dateTo?: string,
+    @Query('sort') sort?: string,
+    @Query('onlyReturning') onlyReturning?: string,
   ) {
-    const items = await this.leadsService.findAllForExport({
-      campaign,
-      dateFrom,
-      dateTo,
-    });
+    const items = await this.leadsService.findAllForExport(
+      {
+        campaign,
+        dateFrom,
+        dateTo,
+        onlyReturning: onlyReturning === 'true',
+      },
+      toLeadSort(sort),
+    );
     return { items };
   }
 

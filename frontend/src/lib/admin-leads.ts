@@ -1,5 +1,5 @@
 import { COUNTRIES } from "./countries";
-import type { AdminLead } from "./admin-api";
+import { submissionCountOf, type AdminLead } from "./admin-api";
 
 export const UTM_KEYS = [
   "utm_source",
@@ -12,6 +12,8 @@ export const UTM_KEYS = [
 /** Encabezados en el mismo orden que las columnas de la tabla en pantalla. */
 export const EXPORT_COLUMNS = [
   "Fecha",
+  "Inscripciones",
+  "Última inscripción",
   "Nombre",
   "Apellido",
   "Correo",
@@ -36,6 +38,10 @@ export const countryName = (code: string) =>
 export function toExportRow(lead: AdminLead): string[] {
   return [
     dateFormatter.format(new Date(lead.createdAt)),
+    String(submissionCountOf(lead)),
+    lead.lastSubmittedAt
+      ? dateFormatter.format(new Date(lead.lastSubmittedAt))
+      : "",
     lead.firstName,
     lead.lastName,
     lead.email,

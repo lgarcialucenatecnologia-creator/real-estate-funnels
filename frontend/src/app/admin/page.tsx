@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 import { BrandMark } from "@/components/brand/brand-mark";
 import { ApiError } from "@/lib/api";
@@ -10,8 +10,10 @@ import {
   fetchCampaigns,
   fetchLeads,
   fetchStats,
+  submissionCountOf,
   type AdminLead,
   type CampaignSummary,
+  type LeadSort,
 } from "@/lib/admin-api";
 import {
   countryName,
@@ -51,11 +53,20 @@ export default function AdminDashboardPage() {
   );
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [onlyReturning, setOnlyReturning] = useState(false);
+  const [sort, setSort] = useState<LeadSort>("recent");
+  /** Fila cuyo historial de inscripciones está desplegado, si hay alguna. */
+  const [expandedLeadId, setExpandedLeadId] = useState<string | null>(null);
   /** Total sin filtrar, para comparar contra `total` (que sí respeta el filtro). */
   const [grandTotal, setGrandTotal] = useState<number | null>(null);
+  /** Cuántos leads se inscribieron más de una vez, sin filtrar. */
+  const [returningTotal, setReturningTotal] = useState<number | null>(null);
 
   const hasActiveFilter =
-    selectedCampaign !== null || dateFrom !== "" || dateTo !== "";
+    selectedCampaign !== null ||
+    dateFrom !== "" ||
+    dateTo !== "" ||
+    onlyReturning;
 
   useEffect(() => {
     if (!isReady) return;
@@ -83,7 +94,10 @@ export default function AdminDashboardPage() {
     if (!token) return;
 
     fetchStats(token)
-      .then(({ total: statsTotal }) => setGrandTotal(statsTotal))
+      .then(({ total: statsTotal, returning }) => {
+        setGrandTotal(statsTotal);
+        setReturningTotal(returning);
+      })
       .catch(() => {
         // No es crítico para la pantalla: sin esto solo no se muestra la
         // comparación "de X en total", el resto sigue funcionando igual.
@@ -99,7 +113,13 @@ export default function AdminDashboardPage() {
       setIsLoading(true);
       setError(null);
 
-      const filters = { campaign: selectedCampaign, dateFrom, dateTo };
+      const filters = {
+        campaign: selectedCampaign,
+        dateFrom,
+        dateTo,
+        onlyReturning,
+        sort,
+      };
       const request =
         limit === "all"
           ? fetchAllLeadsForExport(token, filters).then(({ items }) => ({
@@ -139,7 +159,17 @@ export default function AdminDashboardPage() {
     return () => {
       cancelled = true;
     };
-  }, [token, page, limit, selectedCampaign, dateFrom, dateTo, router]);
+  }, [
+    token,
+    page,
+    limit,
+    selectedCampaign,
+    dateFrom,
+    dateTo,
+    onlyReturning,
+    sort,
+    router,
+  ]);
 
   const handleLogout = () => {
     clearAdminToken();
@@ -170,6 +200,17 @@ export default function AdminDashboardPage() {
     setSelectedCampaign(null);
     setDateFrom("");
     setDateTo("");
+    setOnlyReturning(false);
+    setPage(1);
+  };
+
+  const handleOnlyReturningChange = (value: boolean) => {
+    setOnlyReturning(value);
+    setPage(1);
+  };
+
+  const handleSortChange = (value: string) => {
+    setSort(value === "submissions" ? "submissions" : "recent");
     setPage(1);
   };
 
@@ -184,6 +225,8 @@ export default function AdminDashboardPage() {
         campaign: selectedCampaign,
         dateFrom,
         dateTo,
+        onlyReturning,
+        sort,
       });
 
       if (format === "csv") downloadLeadsCsv(items);
@@ -242,6 +285,19 @@ export default function AdminDashboardPage() {
               {hasActiveFilter && grandTotal !== null ? ` (de ${grandTotal} en total)` : ""}
               .
             </p>
+            {returningTotal !== null && returningTotal > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  handleOnlyReturningChange(true);
+                  handleSortChange("submissions");
+                }}
+                className="font-body mt-1 text-sm text-gold underline-offset-4 transition-colors hover:underline"
+              >
+                {returningTotal} se {returningTotal === 1 ? "inscribió" : "inscribieron"}{" "}
+                más de una vez →
+              </button>
+            )}
           </div>
 
           <div className="flex gap-2">
@@ -316,6 +372,36 @@ export default function AdminDashboardPage() {
             />
           </div>
 
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="sort-order"
+              className="font-heading text-xs font-semibold tracking-[0.18em] text-ivory/70 uppercase"
+            >
+              Ordenar por
+            </label>
+            <select
+              id="sort-order"
+              value={sort}
+              onChange={(event) => handleSortChange(event.target.value)}
+              className="h-11 rounded-lg border border-white/10 bg-nocturne/60 px-3 font-body text-sm text-ivory outline-none focus:border-gold/50"
+            >
+              <option value="recent">Más recientes</option>
+              <option value="submissions">Más inscripciones</option>
+            </select>
+          </div>
+
+          <label className="flex h-11 cursor-pointer items-center gap-2 rounded-lg border border-white/10 px-4 font-body text-sm text-ivory/80 transition-colors hover:border-white/20">
+            <input
+              type="checkbox"
+              checked={onlyReturning}
+              onChange={(event) =>
+                handleOnlyReturningChange(event.target.checked)
+              }
+              className="size-4 accent-gold"
+            />
+            Solo reinscritos
+          </label>
+
           <button
             type="button"
             onClick={handleClearFilters}
@@ -335,7 +421,7 @@ export default function AdminDashboardPage() {
         )}
 
         <div className="surface-card mt-6 overflow-x-auto">
-          <table className="w-full min-w-[900px] border-collapse text-left">
+          <table className="w-full min-w-[1100px] border-collapse text-left">
             <thead>
               <tr className="border-b border-white/10">
                 {COLUMNS.map((column) => (
@@ -368,13 +454,61 @@ export default function AdminDashboardPage() {
                   </td>
                 </tr>
               ) : (
-                leads.map((lead) => (
+                leads.map((lead) => {
+                  const submissions = submissionCountOf(lead);
+                  const isReturning = submissions > 1;
+                  const isExpanded = expandedLeadId === lead._id;
+                  const history = lead.submissions ?? [];
+
+                  return (
+                  <Fragment key={lead._id}>
                   <tr
-                    key={lead._id}
                     className="border-b border-white/5 last:border-0 hover:bg-white/[0.02]"
                   >
                     <td className="px-4 py-3 font-body text-sm whitespace-nowrap text-ivory/80">
                       {dateFormatter.format(new Date(lead.createdAt))}
+                    </td>
+                    <td className="px-4 py-3">
+                      {/*
+                        El contador es el gancho para ver el detalle, pero solo
+                        se vuelve botón si hay historial que mostrar: los leads
+                        anteriores a la migración no lo tienen.
+                      */}
+                      {history.length > 0 ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setExpandedLeadId(isExpanded ? null : lead._id)
+                          }
+                          aria-expanded={isExpanded}
+                          title="Ver el detalle de cada inscripción"
+                          className={`flex min-w-9 items-center justify-center gap-1 rounded-full px-2.5 py-1 font-heading text-xs font-bold transition-colors ${
+                            isReturning
+                              ? "bg-gold text-obsidian hover:brightness-110"
+                              : "border border-white/15 text-ivory/70 hover:border-white/30"
+                          }`}
+                        >
+                          {submissions}
+                          <span aria-hidden="true" className="text-[9px]">
+                            {isExpanded ? "▲" : "▼"}
+                          </span>
+                        </button>
+                      ) : (
+                        <span
+                          className={`flex min-w-9 items-center justify-center rounded-full px-2.5 py-1 font-heading text-xs font-bold ${
+                            isReturning
+                              ? "bg-gold text-obsidian"
+                              : "border border-white/15 text-ivory/70"
+                          }`}
+                        >
+                          {submissions}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 font-body text-sm whitespace-nowrap text-ivory/80">
+                      {lead.lastSubmittedAt
+                        ? dateFormatter.format(new Date(lead.lastSubmittedAt))
+                        : "—"}
                     </td>
                     <td className="px-4 py-3 font-body text-sm whitespace-nowrap text-ivory">
                       {lead.firstName}
@@ -412,7 +546,43 @@ export default function AdminDashboardPage() {
                       );
                     })}
                   </tr>
-                ))
+
+                  {isExpanded && (
+                    <tr className="border-b border-white/5 bg-obsidian/60">
+                      <td colSpan={COLUMNS.length} className="px-4 py-4">
+                        <p className="font-heading text-xs tracking-[0.18em] text-gold uppercase">
+                          Historial de inscripciones
+                        </p>
+                        <ol className="mt-3 flex flex-col gap-2">
+                          {history.map((submission, index) => (
+                            <li
+                              key={`${submission.at}-${index}`}
+                              className="flex flex-wrap items-baseline gap-x-4 gap-y-1 border-l-2 border-gold/40 pl-3 font-body text-sm text-ivory/75"
+                            >
+                              <span className="font-heading text-xs text-gold">
+                                #{index + 1}
+                              </span>
+                              <span className="whitespace-nowrap">
+                                {dateFormatter.format(new Date(submission.at))}
+                              </span>
+                              {submission.phoneE164 && (
+                                <span className="text-ivory/60">
+                                  {submission.phoneE164}
+                                </span>
+                              )}
+                              <span className="text-ivory/60">
+                                {submission.tracking?.utm_campaign ??
+                                  "sin campaña"}
+                              </span>
+                            </li>
+                          ))}
+                        </ol>
+                      </td>
+                    </tr>
+                  )}
+                  </Fragment>
+                  );
+                })
               )}
             </tbody>
           </table>
