@@ -12,6 +12,7 @@ export const UTM_KEYS = [
 /** Encabezados en el mismo orden que las columnas de la tabla en pantalla. */
 export const EXPORT_COLUMNS = [
   "Fecha",
+  "Grupo",
   "Inscripciones",
   "Última inscripción",
   "Nombre",
@@ -38,6 +39,7 @@ export const countryName = (code: string) =>
 export function toExportRow(lead: AdminLead): string[] {
   return [
     dateFormatter.format(new Date(lead.createdAt)),
+    lead.whatsappGroup?.label ?? "",
     String(submissionCountOf(lead)),
     lead.lastSubmittedAt
       ? dateFormatter.format(new Date(lead.lastSubmittedAt))
