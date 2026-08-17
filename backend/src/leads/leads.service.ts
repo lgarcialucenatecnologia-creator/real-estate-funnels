@@ -1,10 +1,16 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { isValidObjectId, Model, QueryFilter } from 'mongoose';
 
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { MetaConversionsService } from './meta-conversions.service';
-import { Lead, LeadDocument, LeadStage } from './schemas/lead.schema';
+import {
+  Lead,
+  LeadDocument,
+  LeadStage,
+  WhatsappGroup,
+} from './schemas/lead.schema';
 
 export interface LeadRequestContext {
   ipAddress?: string;
@@ -38,10 +44,30 @@ export interface LeadFilters {
   dateTo?: string;
   /** Deja solo los que se inscribieron más de una vez. */
   onlyReturning?: boolean;
+  /**
+   * Código del grupo de WhatsApp (la cohorte semanal). El string vacío no
+   * filtra; para pedir explícitamente los que no tienen grupo se usa
+   * `SIN_GRUPO`.
+   */
+  whatsappGroup?: string;
 }
+
+/** Valor especial del filtro para los leads capturados antes del etiquetado. */
+export const NO_GROUP = 'sin-grupo';
 
 /** `submissions` ordena por interés: más inscripciones primero. */
 export type LeadSort = 'recent' | 'submissions';
+
+/**
+ * Código de invitación de un enlace de WhatsApp: lo que va después del último
+ * `/`, sin querystring. Sirve como identificador estable del grupo aunque el
+ * enlace se copie con parámetros de más.
+ */
+export function extractGroupCode(url: string): string | undefined {
+  const cleaned = url.trim().split('?')[0].replace(/\/+$/, '');
+  const code = cleaned.split('/').pop();
+  return code && code !== 'chat.whatsapp.com' ? code : undefined;
+}
 
 const SORT_ORDERS: Record<LeadSort, Record<string, 1 | -1>> = {
   recent: { createdAt: -1 },
@@ -66,7 +92,27 @@ export class LeadsService {
   constructor(
     @InjectModel(Lead.name) private readonly leadModel: Model<LeadDocument>,
     private readonly metaConversions: MetaConversionsService,
+    private readonly config: ConfigService,
   ) {}
+
+  /**
+   * Grupo de WhatsApp activo, leído del entorno en cada captura. Como el
+   * enlace se cambia cada semana, este valor es la cohorte a la que entra el
+   * lead que se registra ahora mismo.
+   *
+   * Devuelve `undefined` si no hay enlace configurado: en ese caso el lead se
+   * guarda sin grupo en vez de inventarle uno.
+   */
+  activeWhatsappGroup(): WhatsappGroup | undefined {
+    const url = this.config.get<string>('funnel.whatsappGroupUrl')?.trim();
+    if (!url) return undefined;
+
+    const code = extractGroupCode(url);
+    if (!code) return undefined;
+
+    const label = this.config.get<string>('funnel.whatsappGroupLabel')?.trim();
+    return { code, label: label || code };
+  }
 
   async create(
     dto: CreateLeadDto,
@@ -96,6 +142,7 @@ export class LeadsService {
   ): Promise<LeadDocument> {
     const phoneE164 = `${dto.dialCode}${dto.phoneNumber}`;
     const now = new Date();
+    const group = this.activeWhatsappGroup();
 
     try {
       return await this.leadModel.findOneAndUpdate(
@@ -113,10 +160,16 @@ export class LeadsService {
             ipAddress: context.ipAddress,
             userAgent: context.userAgent,
             ...(dto.tracking ? { tracking: dto.tracking } : {}),
+            ...(group ? { whatsappGroup: group } : {}),
           },
           $inc: { submissionCount: 1 },
           $push: {
-            submissions: { at: now, phoneE164, tracking: dto.tracking ?? {} },
+            submissions: {
+              at: now,
+              phoneE164,
+              tracking: dto.tracking ?? {},
+              ...(group ? { whatsappGroup: group } : {}),
+            },
           },
           $setOnInsert: { stage: LeadStage.Captured },
         },
@@ -261,6 +314,54 @@ export class LeadsService {
     ]);
   }
 
+  /**
+   * Grupos de WhatsApp vistos en los leads, el más reciente primero, con
+   * cuántos leads entraron a cada uno. Un lead que se inscribió en dos semanas
+   * cuenta en las dos, que es justo lo que pasó en la realidad.
+   */
+  async findWhatsappGroups() {
+    const groups = await this.leadModel.aggregate<{
+      code: string;
+      label: string;
+      count: number;
+      lastSeenAt: Date;
+    }>([
+      { $unwind: '$submissions' },
+      { $match: { 'submissions.whatsappGroup.code': { $exists: true } } },
+      {
+        $group: {
+          _id: '$submissions.whatsappGroup.code',
+          // La etiqueta puede haberse escrito distinta entre semanas; gana la
+          // del envío más reciente de ese mismo grupo.
+          label: { $last: '$submissions.whatsappGroup.label' },
+          leads: { $addToSet: '$_id' },
+          lastSeenAt: { $max: '$submissions.at' },
+        },
+      },
+      { $sort: { lastSeenAt: -1 } },
+      {
+        $project: {
+          _id: 0,
+          code: '$_id',
+          label: 1,
+          count: { $size: '$leads' },
+          lastSeenAt: 1,
+        },
+      },
+    ]);
+
+    const withoutGroup = await this.leadModel.countDocuments({
+      'submissions.whatsappGroup.code': { $exists: false },
+    });
+
+    return {
+      items: groups,
+      withoutGroup,
+      /** El grupo del `.env`, que el dashboard preselecciona. */
+      active: this.activeWhatsappGroup() ?? null,
+    };
+  }
+
   private buildFilter(filters: LeadFilters): QueryFilter<Lead> {
     const filter: QueryFilter<Lead> = {};
 
@@ -272,6 +373,17 @@ export class LeadsService {
     // "más de una vez" se pregunta explícitamente por > 1, no por != 1.
     if (filters.onlyReturning) {
       filter.submissionCount = { $gt: 1 };
+    }
+
+    /*
+      Se busca dentro del historial, no en el campo de nivel documento: quien
+      se inscribió en dos semanas distintas entró a ambos grupos y tiene que
+      aparecer al filtrar por cualquiera de los dos.
+    */
+    if (filters.whatsappGroup === NO_GROUP) {
+      filter['submissions.whatsappGroup.code'] = { $exists: false };
+    } else if (filters.whatsappGroup) {
+      filter['submissions.whatsappGroup.code'] = filters.whatsappGroup;
     }
 
     if (filters.dateFrom || filters.dateTo) {

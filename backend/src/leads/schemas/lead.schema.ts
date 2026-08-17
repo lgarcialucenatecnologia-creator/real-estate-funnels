@@ -11,9 +11,31 @@ export enum LeadStage {
 export type LeadDocument = HydratedDocument<Lead>;
 
 /**
+ * Grupo de WhatsApp al que se envió al lead. Como el grupo se cambia cada
+ * semana, funciona de hecho como la cohorte de captación.
+ */
+@Schema({ _id: false })
+export class WhatsappGroup {
+  /**
+   * Código de invitación del enlace (la parte final de
+   * chat.whatsapp.com/XXXX). Es el identificador estable con el que se filtra;
+   * la etiqueta puede escribirse distinta de una semana a otra.
+   */
+  @Prop({ required: true })
+  code: string;
+
+  /** Nombre legible, p. ej. "Semana 3". Cae al código si no se configuró. */
+  @Prop({ required: true })
+  label: string;
+}
+
+export const WhatsappGroupSchema = SchemaFactory.createForClass(WhatsappGroup);
+
+/**
  * Una entrada por cada vez que el lead envió el formulario. Como la identidad
- * del lead es el correo, aquí queda registrado el teléfono y la campaña de
- * *ese* envío: si vuelve con otro número o por otra pauta, no se pierde.
+ * del lead es el correo, aquí queda registrado el teléfono, la campaña y el
+ * grupo de *ese* envío: si vuelve con otro número, por otra pauta o en otra
+ * semana, no se pierde.
  */
 @Schema({ _id: false })
 export class LeadSubmission {
@@ -27,6 +49,10 @@ export class LeadSubmission {
   /** UTM y cookies del pixel de ese envío. */
   @Prop({ type: Object, default: {} })
   tracking: Record<string, string>;
+
+  /** Grupo activo al momento de este envío. */
+  @Prop({ type: WhatsappGroupSchema })
+  whatsappGroup?: WhatsappGroup;
 }
 
 export const LeadSubmissionSchema =
@@ -94,6 +120,15 @@ export class Lead {
   @Prop({ type: [LeadSubmissionSchema], default: undefined })
   submissions?: LeadSubmission[];
 
+  /**
+   * Último grupo al que se envió al lead, para mostrarlo en la tabla sin tener
+   * que recorrer el historial. El filtro por grupo NO usa este campo, sino
+   * `submissions.whatsappGroup.code`: un lead que volvió en otra semana entró
+   * a los dos grupos y debe salir al filtrar por cualquiera de ellos.
+   */
+  @Prop({ type: WhatsappGroupSchema })
+  whatsappGroup?: WhatsappGroup;
+
   @Prop()
   ipAddress?: string;
 
@@ -124,3 +159,5 @@ export const LeadSchema = SchemaFactory.createForClass(Lead);
 */
 LeadSchema.index({ email: 1 }, { unique: true });
 LeadSchema.index({ createdAt: -1 });
+/** Sostiene el filtro por cohorte semanal del dashboard. */
+LeadSchema.index({ 'submissions.whatsappGroup.code': 1 });

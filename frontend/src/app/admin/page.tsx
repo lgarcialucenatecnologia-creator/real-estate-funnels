@@ -10,10 +10,13 @@ import {
   fetchCampaigns,
   fetchLeads,
   fetchStats,
+  fetchWhatsappGroups,
   submissionCountOf,
+  NO_GROUP,
   type AdminLead,
   type CampaignSummary,
   type LeadSort,
+  type WhatsappGroupSummary,
 } from "@/lib/admin-api";
 import {
   countryName,
@@ -54,6 +57,16 @@ export default function AdminDashboardPage() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [onlyReturning, setOnlyReturning] = useState(false);
+  const [groups, setGroups] = useState<WhatsappGroupSummary[]>([]);
+  const [groupsWithout, setGroupsWithout] = useState(0);
+  /*
+    `undefined` = todavía no sabemos cuál es el grupo activo, así que aún no se
+    piden leads: evita cargar la lista completa y luego reemplazarla por la
+    filtrada. `""` = todos los grupos.
+  */
+  const [selectedGroup, setSelectedGroup] = useState<string | undefined>(
+    undefined,
+  );
   const [sort, setSort] = useState<LeadSort>("recent");
   /** Fila cuyo historial de inscripciones está desplegado, si hay alguna. */
   const [expandedLeadId, setExpandedLeadId] = useState<string | null>(null);
@@ -66,7 +79,8 @@ export default function AdminDashboardPage() {
     selectedCampaign !== null ||
     dateFrom !== "" ||
     dateTo !== "" ||
-    onlyReturning;
+    onlyReturning ||
+    Boolean(selectedGroup);
 
   useEffect(() => {
     if (!isReady) return;
@@ -93,6 +107,24 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (!token) return;
 
+    fetchWhatsappGroups(token)
+      .then(({ items, withoutGroup, active }) => {
+        setGroups(items);
+        setGroupsWithout(withoutGroup);
+        // El grupo del .env es el de la semana en curso: arranca filtrado por
+        // él. Si no hay ninguno configurado, se muestran todos.
+        setSelectedGroup(active?.code ?? "");
+      })
+      .catch(() => {
+        // Sin la lista de grupos el dashboard sigue sirviendo: simplemente
+        // arranca sin filtrar por cohorte.
+        setSelectedGroup("");
+      });
+  }, [token]);
+
+  useEffect(() => {
+    if (!token) return;
+
     fetchStats(token)
       .then(({ total: statsTotal, returning }) => {
         setGrandTotal(statsTotal);
@@ -105,7 +137,7 @@ export default function AdminDashboardPage() {
   }, [token]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token || selectedGroup === undefined) return;
 
     let cancelled = false;
 
@@ -119,6 +151,7 @@ export default function AdminDashboardPage() {
         dateTo,
         onlyReturning,
         sort,
+        whatsappGroup: selectedGroup,
       };
       const request =
         limit === "all"
@@ -168,6 +201,7 @@ export default function AdminDashboardPage() {
     dateTo,
     onlyReturning,
     sort,
+    selectedGroup,
     router,
   ]);
 
@@ -201,6 +235,12 @@ export default function AdminDashboardPage() {
     setDateFrom("");
     setDateTo("");
     setOnlyReturning(false);
+    setSelectedGroup("");
+    setPage(1);
+  };
+
+  const handleGroupChange = (value: string) => {
+    setSelectedGroup(value);
     setPage(1);
   };
 
@@ -227,6 +267,7 @@ export default function AdminDashboardPage() {
         dateTo,
         onlyReturning,
         sort,
+        whatsappGroup: selectedGroup,
       });
 
       if (format === "csv") downloadLeadsCsv(items);
@@ -318,6 +359,31 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="mt-4 flex flex-wrap items-end gap-3">
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor="group-filter"
+              className="font-heading text-xs font-semibold tracking-[0.18em] text-ivory/70 uppercase"
+            >
+              Grupo de WhatsApp
+            </label>
+            <select
+              id="group-filter"
+              value={selectedGroup ?? ""}
+              onChange={(event) => handleGroupChange(event.target.value)}
+              className="h-11 min-w-[15rem] rounded-lg border border-white/10 bg-nocturne/60 px-3 font-body text-sm text-ivory outline-none focus:border-gold/50"
+            >
+              <option value="">Todos los grupos</option>
+              {groups.map((group) => (
+                <option key={group.code} value={group.code}>
+                  {group.label} ({group.count})
+                </option>
+              ))}
+              {groupsWithout > 0 && (
+                <option value={NO_GROUP}>Sin grupo ({groupsWithout})</option>
+              )}
+            </select>
+          </div>
+
           <div className="flex flex-col gap-1.5">
             <label
               htmlFor="campaign-filter"
@@ -421,7 +487,7 @@ export default function AdminDashboardPage() {
         )}
 
         <div className="surface-card mt-6 overflow-x-auto">
-          <table className="w-full min-w-[1100px] border-collapse text-left">
+          <table className="w-full min-w-[1220px] border-collapse text-left">
             <thead>
               <tr className="border-b border-white/10">
                 {COLUMNS.map((column) => (
@@ -467,6 +533,9 @@ export default function AdminDashboardPage() {
                   >
                     <td className="px-4 py-3 font-body text-sm whitespace-nowrap text-ivory/80">
                       {dateFormatter.format(new Date(lead.createdAt))}
+                    </td>
+                    <td className="px-4 py-3 font-body text-sm whitespace-nowrap text-ivory/70">
+                      {lead.whatsappGroup?.label ?? "—"}
                     </td>
                     <td className="px-4 py-3">
                       {/*
@@ -574,6 +643,11 @@ export default function AdminDashboardPage() {
                                 {submission.tracking?.utm_campaign ??
                                   "sin campaña"}
                               </span>
+                              {submission.whatsappGroup && (
+                                <span className="rounded-full border border-gold/30 px-2 text-xs text-gold">
+                                  {submission.whatsappGroup.label}
+                                </span>
+                              )}
                             </li>
                           ))}
                         </ol>

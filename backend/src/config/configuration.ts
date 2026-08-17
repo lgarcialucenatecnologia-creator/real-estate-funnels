@@ -9,6 +9,8 @@ export interface AppConfig {
   };
   funnel: {
     whatsappGroupUrl: string;
+    /** Nombre legible del grupo activo, p. ej. "Semana 3". */
+    whatsappGroupLabel: string;
     progressPercentage: number;
   };
   meta: {
@@ -31,6 +33,7 @@ export const configuration = (): AppConfig => ({
   },
   funnel: {
     whatsappGroupUrl: process.env.WHATSAPP_GROUP_URL ?? '',
+    whatsappGroupLabel: process.env.WHATSAPP_GROUP_LABEL?.trim() ?? '',
     progressPercentage: parseInt(process.env.FUNNEL_PROGRESS ?? '79', 10),
   },
   meta: {

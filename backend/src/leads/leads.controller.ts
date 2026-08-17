@@ -81,6 +81,7 @@ export class LeadsController {
     @Query('dateTo') dateTo?: string,
     @Query('sort') sort?: string,
     @Query('onlyReturning') onlyReturning?: string,
+    @Query('whatsappGroup') whatsappGroup?: string,
   ) {
     return this.leadsService.findAll(
       page ? parseInt(page, 10) : undefined,
@@ -90,6 +91,7 @@ export class LeadsController {
         dateFrom,
         dateTo,
         onlyReturning: onlyReturning === 'true',
+        whatsappGroup,
       },
       toLeadSort(sort),
     );
@@ -103,6 +105,7 @@ export class LeadsController {
     @Query('dateTo') dateTo?: string,
     @Query('sort') sort?: string,
     @Query('onlyReturning') onlyReturning?: string,
+    @Query('whatsappGroup') whatsappGroup?: string,
   ) {
     const items = await this.leadsService.findAllForExport(
       {
@@ -110,6 +113,7 @@ export class LeadsController {
         dateFrom,
         dateTo,
         onlyReturning: onlyReturning === 'true',
+        whatsappGroup,
       },
       toLeadSort(sort),
     );
@@ -121,6 +125,13 @@ export class LeadsController {
   async findCampaigns() {
     const items = await this.leadsService.findCampaigns();
     return { items };
+  }
+
+  /** Cohortes semanales: los grupos de WhatsApp por los que han pasado leads. */
+  @Get('whatsapp-groups')
+  @UseGuards(AdminAuthGuard)
+  findWhatsappGroups() {
+    return this.leadsService.findWhatsappGroups();
   }
 
   @Get('stats')

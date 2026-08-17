@@ -6,11 +6,21 @@ import type { LeadStage } from "./api";
  * que usa el flujo público de captura), incluye todo lo que guarda el
  * schema del backend.
  */
+/**
+ * Grupo de WhatsApp al que se envió al lead. Como el enlace se cambia cada
+ * semana, identifica la cohorte de captación.
+ */
+export interface WhatsappGroup {
+  code: string;
+  label: string;
+}
+
 /** Una entrada por cada vez que el lead envió el formulario. */
 export interface LeadSubmission {
   at: string;
   phoneE164?: string;
   tracking?: Record<string, string>;
+  whatsappGroup?: WhatsappGroup;
 }
 
 export interface AdminLead {
@@ -31,6 +41,8 @@ export interface AdminLead {
   submissionCount?: number;
   lastSubmittedAt?: string;
   submissions?: LeadSubmission[];
+  /** Último grupo al que entró; el filtro usa el historial, no este campo. */
+  whatsappGroup?: WhatsappGroup;
   createdAt: string;
   updatedAt: string;
 }
@@ -64,7 +76,12 @@ export interface LeadFilters {
   /** Deja solo los leads que se inscribieron más de una vez. */
   onlyReturning?: boolean;
   sort?: LeadSort;
+  /** Código del grupo de WhatsApp; `NO_GROUP` = los que no tienen ninguno. */
+  whatsappGroup?: string | null;
 }
+
+/** Valor del filtro para los leads capturados antes del etiquetado. */
+export const NO_GROUP = "sin-grupo";
 
 /** Arma el querystring de filtros, omitiendo lo que no venga definido. */
 function filtersToQuery(filters: LeadFilters = {}): string {
@@ -74,6 +91,7 @@ function filtersToQuery(filters: LeadFilters = {}): string {
   if (filters.dateTo) params.set("dateTo", filters.dateTo);
   if (filters.onlyReturning) params.set("onlyReturning", "true");
   if (filters.sort) params.set("sort", filters.sort);
+  if (filters.whatsappGroup) params.set("whatsappGroup", filters.whatsappGroup);
   return params.toString();
 }
 
@@ -104,6 +122,21 @@ export const fetchAllLeadsForExport = (
 
 export const fetchCampaigns = (token: string) =>
   request<{ items: CampaignSummary[] }>("/leads/campaigns", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+export interface WhatsappGroupSummary extends WhatsappGroup {
+  count: number;
+  lastSeenAt: string;
+}
+
+/** Cohortes semanales. `active` es el grupo del .env, que se preselecciona. */
+export const fetchWhatsappGroups = (token: string) =>
+  request<{
+    items: WhatsappGroupSummary[];
+    withoutGroup: number;
+    active: WhatsappGroup | null;
+  }>("/leads/whatsapp-groups", {
     headers: { Authorization: `Bearer ${token}` },
   });
 
