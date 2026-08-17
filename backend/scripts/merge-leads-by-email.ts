@@ -68,18 +68,48 @@ const submissionsOf = (lead: LeadDoc): Submission[] => {
   ];
 };
 
+/**
+ * Host y base de la conexión, sin usuario ni contraseña, para imprimirlos.
+ * El proyecto tiene más de una base (la de pruebas y la que usa el servidor de
+ * producción), y el `.env` local no siempre apunta a la que uno cree.
+ */
+const describeTarget = (uri: string): string => {
+  try {
+    const parsed = new URL(uri);
+    const database = parsed.pathname.replace(/^\//, '') || '(sin especificar)';
+    return `${parsed.host} · base "${database}"`;
+  } catch {
+    return '(cadena de conexión ilegible)';
+  }
+};
+
 async function main() {
   const uri = process.env.MONGODB_URI;
   if (!uri) throw new Error('Falta MONGODB_URI en el .env');
 
+  console.log(
+    APPLY
+      ? '\n⚠️  MODO APLICAR: se van a escribir cambios en la base.'
+      : '\n🔍 SIMULACIÓN: no se escribe nada. Añade --apply para ejecutar.',
+  );
+  console.log(`📍 Destino: ${describeTarget(uri)}\n`);
+
   await mongoose.connect(uri);
   const leads = mongoose.connection.collection<LeadDoc>('leads');
 
-  console.log(
-    APPLY
-      ? '\n⚠️  MODO APLICAR: se van a escribir cambios en la base.\n'
-      : '\n🔍 SIMULACIÓN: no se escribe nada. Añade --apply para ejecutar.\n',
-  );
+  /*
+    Antes de escribir se muestra el tamaño de la colección. Si el número no
+    coincide con el que sale en /admin, la conexión apunta a otra base y hay
+    que abortar (Ctrl+C) en vez de migrar la equivocada.
+  */
+  if (APPLY) {
+    const found = await leads.countDocuments();
+    console.log(
+      `La colección tiene ${found} leads. Si no cuadra con /admin, corta ahora (Ctrl+C).`,
+    );
+    console.log('Continuando en 5 segundos...\n');
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+  }
 
   /*
     El índice viejo se borra ANTES de fusionar, no después. Mientras exista,
