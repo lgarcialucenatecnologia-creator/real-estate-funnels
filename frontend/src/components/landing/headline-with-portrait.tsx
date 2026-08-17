@@ -72,8 +72,8 @@ export function HeadlineWithPortrait() {
         Aprende a negociar inmuebles{" "}
         <span className="text-gold-gradient">por debajo del mercado</span> y
         gánate de{" "}
-        <span className="text-gold-gradient">20 a 40 millones</span> de entrada
-        en tu próxima compra
+        <span className="text-gold-gradient">20 a 40 millones</span> en tu
+        próxima compra
       </h1>
     </div>
   );
