@@ -69,11 +69,9 @@ export function HeadlineWithPortrait() {
         ref={headingRef}
         className="font-display min-w-0 flex-1 text-3xl leading-[0.95] font-black text-balance break-words text-ivory italic uppercase lg:text-pretty [font-stretch:condensed] min-[400px]:text-4xl sm:text-5xl lg:text-[2.7rem] lg:leading-[0.94] xl:text-[3.1rem]"
       >
-        Aprende a negociar inmuebles{" "}
-        <span className="text-gold-gradient">por debajo del mercado</span> y
-        gánate de{" "}
-        <span className="text-gold-gradient">20 a 40 millones</span> en tu
-        próxima compra
+        Aprende a negociar propiedades y gana entre{" "}
+        <span className="text-gold-gradient">$20 y $40 millones</span> por
+        compra
       </h1>
     </div>
   );
